@@ -1,0 +1,67 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PrimaryToken
+    network: arbitrum-goerli
+    source:
+      abi: PrimaryToken
+      address: "0x956425d6F76Dc0AfB9bB6975eA3439E276a9b139"
+      startBlock: 633500
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - AddPrjToken
+        - Borrow
+        - Deposit
+        - Liquidate
+        - LiquidationIncentiveSet
+        - LiquidationThresholdFactorSet
+        - LoanToValueRatioSet
+        - Redeem
+        - RedeemUnderlying
+        - RepayBorrow
+        - RoleAdminChanged
+        - RoleGranted
+        - RoleRevoked
+        - Supply
+        - Withdraw
+      abis:
+        - name: PrimaryToken
+          file: ./abis/PrimaryToken.json
+      eventHandlers:
+        - event: AddPrjToken(indexed address)
+          handler: handleAddPrjToken
+        - event: Borrow(indexed address,indexed address,uint256,indexed address,uint256)
+          handler: handleBorrow
+        - event: Deposit(indexed address,indexed address,address,uint256,indexed address)
+          handler: handleDeposit
+        - event: Liquidate(indexed address,indexed address,address,indexed
+            address,uint256)
+          handler: handleLiquidate
+        - event: LiquidationIncentiveSet(indexed address,uint8,uint8)
+          handler: handleLiquidationIncentiveSet
+        - event: LiquidationThresholdFactorSet(indexed address,uint8,uint8)
+          handler: handleLiquidationThresholdFactorSet
+        - event: LoanToValueRatioSet(indexed address,uint8,uint8)
+          handler: handleLoanToValueRatioSet
+        - event: Redeem(indexed address,indexed address,indexed address,uint256)
+          handler: handleRedeem
+        - event: RedeemUnderlying(indexed address,indexed address,indexed address,uint256)
+          handler: handleRedeemUnderlying
+        - event: RepayBorrow(indexed address,indexed address,uint256,indexed address,bool)
+          handler: handleRepayBorrow
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: Supply(indexed address,indexed address,uint256,indexed address,uint256)
+          handler: handleSupply
+        - event: Withdraw(indexed address,indexed address,address,uint256,indexed address)
+          handler: handleWithdraw
+      file: ./src/primary-token.ts

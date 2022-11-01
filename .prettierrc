@@ -1,0 +1,20 @@
+{
+    "overrides": [
+        {
+            "files": "*.yaml",
+            "options": {
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": [
+                "*.html",
+                "*.ts"
+            ],
+            "options": {
+                "tabWidth": 4,
+                "printWidth": 110
+            }
+        }
+    ]
+}

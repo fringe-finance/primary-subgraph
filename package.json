@@ -1,0 +1,18 @@
+{
+  "name": "test",
+  "license": "UNLICENSED",
+  "scripts": {
+    "auth": "graph auth --studio ",
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy-goerli": "graph deploy --studio plp-goerli",
+    "deploy-arbitrum-goerli": "graph deploy --product hosted-service nhattm-lotussoft/plp-arbitrum-goerli",
+    "create-local": "graph create --node http://localhost:8020/ test",
+    "remove-local": "graph remove --node http://localhost:8020/ test",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.33.1",
+    "@graphprotocol/graph-ts": "0.28.1"
+  }
+}

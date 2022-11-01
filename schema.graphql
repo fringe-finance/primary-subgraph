@@ -1,0 +1,7 @@
+type ProjectToken @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  address: Bytes! # address
+  timestamp: BigInt!
+}
