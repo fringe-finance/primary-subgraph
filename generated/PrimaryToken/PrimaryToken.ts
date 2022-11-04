@@ -10,6 +10,32 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class AddLendingToken extends ethereum.Event {
+  get params(): AddLendingToken__Params {
+    return new AddLendingToken__Params(this);
+  }
+}
+
+export class AddLendingToken__Params {
+  _event: AddLendingToken;
+
+  constructor(event: AddLendingToken) {
+    this._event = event;
+  }
+
+  get lendingToken(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get name(): string {
+    return this._event.parameters[1].value.toString();
+  }
+
+  get symbol(): string {
+    return this._event.parameters[2].value.toString();
+  }
+}
+
 export class AddPrjToken extends ethereum.Event {
   get params(): AddPrjToken__Params {
     return new AddPrjToken__Params(this);
@@ -25,6 +51,14 @@ export class AddPrjToken__Params {
 
   get tokenPrj(): Address {
     return this._event.parameters[0].value.toAddress();
+  }
+
+  get name(): string {
+    return this._event.parameters[1].value.toString();
+  }
+
+  get symbol(): string {
+    return this._event.parameters[2].value.toString();
   }
 }
 
@@ -265,6 +299,42 @@ export class RedeemUnderlying__Params {
 
   get redeemAmountUnderlying(): BigInt {
     return this._event.parameters[3].value.toBigInt();
+  }
+}
+
+export class RemoveLendingToken extends ethereum.Event {
+  get params(): RemoveLendingToken__Params {
+    return new RemoveLendingToken__Params(this);
+  }
+}
+
+export class RemoveLendingToken__Params {
+  _event: RemoveLendingToken;
+
+  constructor(event: RemoveLendingToken) {
+    this._event = event;
+  }
+
+  get lendingToken(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class RemoveProjectToken extends ethereum.Event {
+  get params(): RemoveProjectToken__Params {
+    return new RemoveProjectToken__Params(this);
+  }
+}
+
+export class RemoveProjectToken__Params {
+  _event: RemoveProjectToken;
+
+  constructor(event: RemoveProjectToken) {
+    this._event = event;
+  }
+
+  get tokenPrj(): Address {
+    return this._event.parameters[0].value.toAddress();
   }
 }
 
@@ -745,6 +815,52 @@ export class PrimaryToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  borrowLimitPerCollateral(param0: Address): BigInt {
+    let result = super.call(
+      "borrowLimitPerCollateral",
+      "borrowLimitPerCollateral(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_borrowLimitPerCollateral(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "borrowLimitPerCollateral",
+      "borrowLimitPerCollateral(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  borrowLimitPerLendingToken(param0: Address): BigInt {
+    let result = super.call(
+      "borrowLimitPerLendingToken",
+      "borrowLimitPerLendingToken(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_borrowLimitPerLendingToken(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "borrowLimitPerLendingToken",
+      "borrowLimitPerLendingToken(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   borrowPosition(
     param0: Address,
     param1: Address,
@@ -792,6 +908,45 @@ export class PrimaryToken extends ethereum.SmartContract {
     );
   }
 
+  convertPitRemaining(
+    account: Address,
+    projectToken: Address,
+    lendingToken: Address
+  ): BigInt {
+    let result = super.call(
+      "convertPitRemaining",
+      "convertPitRemaining(address,address,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(projectToken),
+        ethereum.Value.fromAddress(lendingToken)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_convertPitRemaining(
+    account: Address,
+    projectToken: Address,
+    lendingToken: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "convertPitRemaining",
+      "convertPitRemaining(address,address,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(projectToken),
+        ethereum.Value.fromAddress(lendingToken)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   decimals(): i32 {
     let result = super.call("decimals", "decimals():(uint8)", []);
 
@@ -807,32 +962,29 @@ export class PrimaryToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toI32());
   }
 
-  depositPosition(param0: Address, param1: Address, param2: Address): BigInt {
+  getDepositedAmount(projectToken: Address, user: Address): BigInt {
     let result = super.call(
-      "depositPosition",
-      "depositPosition(address,address,address):(uint256)",
+      "getDepositedAmount",
+      "getDepositedAmount(address,address):(uint256)",
       [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromAddress(param1),
-        ethereum.Value.fromAddress(param2)
+        ethereum.Value.fromAddress(projectToken),
+        ethereum.Value.fromAddress(user)
       ]
     );
 
     return result[0].toBigInt();
   }
 
-  try_depositPosition(
-    param0: Address,
-    param1: Address,
-    param2: Address
+  try_getDepositedAmount(
+    projectToken: Address,
+    user: Address
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "depositPosition",
-      "depositPosition(address,address,address):(uint256)",
+      "getDepositedAmount",
+      "getDepositedAmount(address,address):(uint256)",
       [
-        ethereum.Value.fromAddress(param0),
-        ethereum.Value.fromAddress(param1),
-        ethereum.Value.fromAddress(param2)
+        ethereum.Value.fromAddress(projectToken),
+        ethereum.Value.fromAddress(user)
       ]
     );
     if (result.reverted) {
@@ -895,32 +1047,29 @@ export class PrimaryToken extends ethereum.SmartContract {
     );
   }
 
-  getProjectTokenEvaluation(
-    projectToken: Address,
-    projectTokenAmount: BigInt
-  ): BigInt {
+  getPriceConvert(lendingToken: Address, amount: BigInt): BigInt {
     let result = super.call(
-      "getProjectTokenEvaluation",
-      "getProjectTokenEvaluation(address,uint256):(uint256)",
+      "getPriceConvert",
+      "getPriceConvert(address,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(projectToken),
-        ethereum.Value.fromUnsignedBigInt(projectTokenAmount)
+        ethereum.Value.fromAddress(lendingToken),
+        ethereum.Value.fromUnsignedBigInt(amount)
       ]
     );
 
     return result[0].toBigInt();
   }
 
-  try_getProjectTokenEvaluation(
-    projectToken: Address,
-    projectTokenAmount: BigInt
+  try_getPriceConvert(
+    lendingToken: Address,
+    amount: BigInt
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "getProjectTokenEvaluation",
-      "getProjectTokenEvaluation(address,uint256):(uint256)",
+      "getPriceConvert",
+      "getPriceConvert(address,uint256):(uint256)",
       [
-        ethereum.Value.fromAddress(projectToken),
-        ethereum.Value.fromUnsignedBigInt(projectTokenAmount)
+        ethereum.Value.fromAddress(lendingToken),
+        ethereum.Value.fromUnsignedBigInt(amount)
       ]
     );
     if (result.reverted) {
@@ -949,6 +1098,88 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
+  getTokenEvaluation(token: Address, tokenAmount: BigInt): BigInt {
+    let result = super.call(
+      "getTokenEvaluation",
+      "getTokenEvaluation(address,uint256):(uint256)",
+      [
+        ethereum.Value.fromAddress(token),
+        ethereum.Value.fromUnsignedBigInt(tokenAmount)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getTokenEvaluation(
+    token: Address,
+    tokenAmount: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getTokenEvaluation",
+      "getTokenEvaluation(address,uint256):(uint256)",
+      [
+        ethereum.Value.fromAddress(token),
+        ethereum.Value.fromUnsignedBigInt(tokenAmount)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getTotalBorrowPerCollateral(projectToken: Address): BigInt {
+    let result = super.call(
+      "getTotalBorrowPerCollateral",
+      "getTotalBorrowPerCollateral(address):(uint256)",
+      [ethereum.Value.fromAddress(projectToken)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getTotalBorrowPerCollateral(
+    projectToken: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getTotalBorrowPerCollateral",
+      "getTotalBorrowPerCollateral(address):(uint256)",
+      [ethereum.Value.fromAddress(projectToken)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getTotalBorrowPerLendingToken(lendingToken: Address): BigInt {
+    let result = super.call(
+      "getTotalBorrowPerLendingToken",
+      "getTotalBorrowPerLendingToken(address):(uint256)",
+      [ethereum.Value.fromAddress(lendingToken)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getTotalBorrowPerLendingToken(
+    lendingToken: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getTotalBorrowPerLendingToken",
+      "getTotalBorrowPerLendingToken(address):(uint256)",
+      [ethereum.Value.fromAddress(lendingToken)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   hasRole(role: Bytes, account: Address): boolean {
@@ -1054,6 +1285,32 @@ export class PrimaryToken extends ethereum.SmartContract {
     );
   }
 
+  lendingTokenPerCollateral(param0: Address, param1: Address): Address {
+    let result = super.call(
+      "lendingTokenPerCollateral",
+      "lendingTokenPerCollateral(address,address):(address)",
+      [ethereum.Value.fromAddress(param0), ethereum.Value.fromAddress(param1)]
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_lendingTokenPerCollateral(
+    param0: Address,
+    param1: Address
+  ): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "lendingTokenPerCollateral",
+      "lendingTokenPerCollateral(address,address):(address)",
+      [ethereum.Value.fromAddress(param0), ethereum.Value.fromAddress(param1)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   lendingTokens(param0: BigInt): Address {
     let result = super.call(
       "lendingTokens",
@@ -1154,11 +1411,10 @@ export class PrimaryToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
-  pit(account: Address, projectToken: Address, lendingToken: Address): BigInt {
-    let result = super.call("pit", "pit(address,address,address):(uint256)", [
+  pit(account: Address, projectToken: Address): BigInt {
+    let result = super.call("pit", "pit(address,address):(uint256)", [
       ethereum.Value.fromAddress(account),
-      ethereum.Value.fromAddress(projectToken),
-      ethereum.Value.fromAddress(lendingToken)
+      ethereum.Value.fromAddress(projectToken)
     ]);
 
     return result[0].toBigInt();
@@ -1166,18 +1422,12 @@ export class PrimaryToken extends ethereum.SmartContract {
 
   try_pit(
     account: Address,
-    projectToken: Address,
-    lendingToken: Address
+    projectToken: Address
   ): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "pit",
-      "pit(address,address,address):(uint256)",
-      [
-        ethereum.Value.fromAddress(account),
-        ethereum.Value.fromAddress(projectToken),
-        ethereum.Value.fromAddress(lendingToken)
-      ]
-    );
+    let result = super.tryCall("pit", "pit(address,address):(uint256)", [
+      ethereum.Value.fromAddress(account),
+      ethereum.Value.fromAddress(projectToken)
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -1441,6 +1691,29 @@ export class PrimaryToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  totalBorrowPerLendingToken(param0: Address): BigInt {
+    let result = super.call(
+      "totalBorrowPerLendingToken",
+      "totalBorrowPerLendingToken(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalBorrowPerLendingToken(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalBorrowPerLendingToken",
+      "totalBorrowPerLendingToken(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   totalDepositedProjectToken(param0: Address): BigInt {
     let result = super.call(
       "totalDepositedProjectToken",
@@ -1501,6 +1774,60 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  totalOutstandingInUSD(
+    account: Address,
+    projectToken: Address,
+    lendingToken: Address
+  ): BigInt {
+    let result = super.call(
+      "totalOutstandingInUSD",
+      "totalOutstandingInUSD(address,address,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(projectToken),
+        ethereum.Value.fromAddress(lendingToken)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_totalOutstandingInUSD(
+    account: Address,
+    projectToken: Address,
+    lendingToken: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "totalOutstandingInUSD",
+      "totalOutstandingInUSD(address,address,address):(uint256)",
+      [
+        ethereum.Value.fromAddress(account),
+        ethereum.Value.fromAddress(projectToken),
+        ethereum.Value.fromAddress(lendingToken)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  usdcToken(): Address {
+    let result = super.call("usdcToken", "usdcToken():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_usdcToken(): ethereum.CallResult<Address> {
+    let result = super.tryCall("usdcToken", "usdcToken():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 }
 
@@ -1655,12 +1982,8 @@ export class DepositCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get lendingToken(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
   get projectTokenAmount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -2068,20 +2391,20 @@ export class RevokeRoleCall__Outputs {
   }
 }
 
-export class SetBorrowLimitCall extends ethereum.Call {
-  get inputs(): SetBorrowLimitCall__Inputs {
-    return new SetBorrowLimitCall__Inputs(this);
+export class SetBorrowLimitPerCollateralCall extends ethereum.Call {
+  get inputs(): SetBorrowLimitPerCollateralCall__Inputs {
+    return new SetBorrowLimitPerCollateralCall__Inputs(this);
   }
 
-  get outputs(): SetBorrowLimitCall__Outputs {
-    return new SetBorrowLimitCall__Outputs(this);
+  get outputs(): SetBorrowLimitPerCollateralCall__Outputs {
+    return new SetBorrowLimitPerCollateralCall__Outputs(this);
   }
 }
 
-export class SetBorrowLimitCall__Inputs {
-  _call: SetBorrowLimitCall;
+export class SetBorrowLimitPerCollateralCall__Inputs {
+  _call: SetBorrowLimitPerCollateralCall;
 
-  constructor(call: SetBorrowLimitCall) {
+  constructor(call: SetBorrowLimitPerCollateralCall) {
     this._call = call;
   }
 
@@ -2089,19 +2412,87 @@ export class SetBorrowLimitCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get lendingToken(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
   get _borrowLimit(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
-export class SetBorrowLimitCall__Outputs {
-  _call: SetBorrowLimitCall;
+export class SetBorrowLimitPerCollateralCall__Outputs {
+  _call: SetBorrowLimitPerCollateralCall;
 
-  constructor(call: SetBorrowLimitCall) {
+  constructor(call: SetBorrowLimitPerCollateralCall) {
+    this._call = call;
+  }
+}
+
+export class SetBorrowLimitPerLendingAssetCall extends ethereum.Call {
+  get inputs(): SetBorrowLimitPerLendingAssetCall__Inputs {
+    return new SetBorrowLimitPerLendingAssetCall__Inputs(this);
+  }
+
+  get outputs(): SetBorrowLimitPerLendingAssetCall__Outputs {
+    return new SetBorrowLimitPerLendingAssetCall__Outputs(this);
+  }
+}
+
+export class SetBorrowLimitPerLendingAssetCall__Inputs {
+  _call: SetBorrowLimitPerLendingAssetCall;
+
+  constructor(call: SetBorrowLimitPerLendingAssetCall) {
+    this._call = call;
+  }
+
+  get lendingToken(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _borrowLimit(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class SetBorrowLimitPerLendingAssetCall__Outputs {
+  _call: SetBorrowLimitPerLendingAssetCall;
+
+  constructor(call: SetBorrowLimitPerLendingAssetCall) {
+    this._call = call;
+  }
+}
+
+export class SetLendingTokenForCollCall extends ethereum.Call {
+  get inputs(): SetLendingTokenForCollCall__Inputs {
+    return new SetLendingTokenForCollCall__Inputs(this);
+  }
+
+  get outputs(): SetLendingTokenForCollCall__Outputs {
+    return new SetLendingTokenForCollCall__Outputs(this);
+  }
+}
+
+export class SetLendingTokenForCollCall__Inputs {
+  _call: SetLendingTokenForCollCall;
+
+  constructor(call: SetLendingTokenForCollCall) {
+    this._call = call;
+  }
+
+  get projectToken(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get user(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
+
+  get lendingToken(): Address {
+    return this._call.inputValues[2].value.toAddress();
+  }
+}
+
+export class SetLendingTokenForCollCall__Outputs {
+  _call: SetLendingTokenForCollCall;
+
+  constructor(call: SetLendingTokenForCollCall) {
     this._call = call;
   }
 }
@@ -2300,6 +2691,66 @@ export class SetProjectTokenInfoCall__Outputs {
   }
 }
 
+export class SetTotalBorrowPerLendingTokenCall extends ethereum.Call {
+  get inputs(): SetTotalBorrowPerLendingTokenCall__Inputs {
+    return new SetTotalBorrowPerLendingTokenCall__Inputs(this);
+  }
+
+  get outputs(): SetTotalBorrowPerLendingTokenCall__Outputs {
+    return new SetTotalBorrowPerLendingTokenCall__Outputs(this);
+  }
+}
+
+export class SetTotalBorrowPerLendingTokenCall__Inputs {
+  _call: SetTotalBorrowPerLendingTokenCall;
+
+  constructor(call: SetTotalBorrowPerLendingTokenCall) {
+    this._call = call;
+  }
+
+  get lendingToken(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetTotalBorrowPerLendingTokenCall__Outputs {
+  _call: SetTotalBorrowPerLendingTokenCall;
+
+  constructor(call: SetTotalBorrowPerLendingTokenCall) {
+    this._call = call;
+  }
+}
+
+export class SetUSDCTokenCall extends ethereum.Call {
+  get inputs(): SetUSDCTokenCall__Inputs {
+    return new SetUSDCTokenCall__Inputs(this);
+  }
+
+  get outputs(): SetUSDCTokenCall__Outputs {
+    return new SetUSDCTokenCall__Outputs(this);
+  }
+}
+
+export class SetUSDCTokenCall__Inputs {
+  _call: SetUSDCTokenCall;
+
+  constructor(call: SetUSDCTokenCall) {
+    this._call = call;
+  }
+
+  get usdc(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetUSDCTokenCall__Outputs {
+  _call: SetUSDCTokenCall;
+
+  constructor(call: SetUSDCTokenCall) {
+    this._call = call;
+  }
+}
+
 export class SupplyCall extends ethereum.Call {
   get inputs(): SupplyCall__Inputs {
     return new SupplyCall__Inputs(this);
@@ -2419,12 +2870,8 @@ export class WithdrawCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get lendingToken(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
   get projectTokenAmount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 

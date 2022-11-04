@@ -2,6 +2,35 @@ type ProjectToken @entity {
   id: ID!
   name: String!
   symbol: String!
-  address: Bytes! # address
-  timestamp: BigInt!
+  address: Bytes!
+  updatedAt: BigInt!
 }
+
+type LendingToken @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  address: Bytes!
+  updatedAt: BigInt!
+}
+
+type BorrowLog @entity {
+  id: ID!
+  amount: BigDecimal!
+  asset: String!
+  prjToken: String!
+  type: String!
+  date: BigInt!
+  userAddress: Bytes!
+  prjTokenAddress: Bytes!
+}
+
+type ChartTotal @entity {
+  id: ID!
+  amount: BigDecimal!
+  date: BigInt!
+  type: String!
+  lendingToken: String!
+  lendingTokenAddress: String!
+}
+

@@ -1,0 +1,5 @@
+export const DEPOSIT = 'Deposit'
+export const BORROWED = 'Borrowed'
+export const REPAY = 'Repay'
+export const LIQUIDATION = 'Liquidation'
+export const WITHDRAW = 'Withdraw'

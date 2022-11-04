@@ -5,8 +5,45 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      }
+    ],
+    "name": "AddLendingToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "tokenPrj",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
       }
     ],
     "name": "AddPrjToken",
@@ -266,6 +303,32 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveLendingToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenPrj",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveProjectToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "who",
         "type": "address"
       },
@@ -449,26 +512,46 @@
   {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "MODERATOR_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_bLendingToken",
         "type": "address"
       },
-      { "internalType": "bool", "name": "_isPaused", "type": "bool" }
+      {
+        "internalType": "bool",
+        "name": "_isPaused",
+        "type": "bool"
+      }
     ],
     "name": "addLendingToken",
     "outputs": [],
@@ -477,7 +560,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_projectToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
+      },
       {
         "internalType": "uint8",
         "name": "_loanToValueRatioNumerator",
@@ -516,8 +603,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "lendingTokenAmount",
@@ -531,24 +626,125 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
     "name": "borrowLimit",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "borrowLimitPerCollateral",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "borrowLimitPerLendingToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
     "name": "borrowPosition",
     "outputs": [
-      { "internalType": "uint256", "name": "loanBody", "type": "uint256" },
-      { "internalType": "uint256", "name": "accrual", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "loanBody",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "accrual",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "convertPitRemaining",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -556,14 +752,23 @@
   {
     "inputs": [],
     "name": "decimals",
-    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
     "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "projectTokenAmount",
@@ -577,15 +782,22 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
     ],
-    "name": "depositPosition",
+    "name": "getDepositedAmount",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "depositedProjectTokenAmount",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -594,9 +806,21 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "getPosition",
     "outputs": [
@@ -605,8 +829,16 @@
         "name": "depositedProjectTokenAmount",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "loanBody", "type": "uint256" },
-      { "internalType": "uint256", "name": "accrual", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "loanBody",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "accrual",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "healthFactorNumerator",
@@ -623,30 +855,116 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "projectToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
-        "name": "projectTokenAmount",
+        "name": "amount",
         "type": "uint256"
       }
     ],
-    "name": "getProjectTokenEvaluation",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "getPriceConvert",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
     ],
     "name": "getRoleAdmin",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newModerator", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTokenEvaluation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      }
+    ],
+    "name": "getTotalBorrowPerCollateral",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "getTotalBorrowPerLendingToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newModerator",
+        "type": "address"
+      }
     ],
     "name": "grandModerator",
     "outputs": [],
@@ -655,8 +973,16 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "grantRole",
     "outputs": [],
@@ -665,24 +991,58 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "hasRole",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "healthFactor",
     "outputs": [
-      { "internalType": "uint256", "name": "numerator", "type": "uint256" },
-      { "internalType": "uint256", "name": "denominator", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "numerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "denominator",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -695,11 +1055,25 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "lendingTokenInfo",
     "outputs": [
-      { "internalType": "bool", "name": "isListed", "type": "bool" },
-      { "internalType": "bool", "name": "isPaused", "type": "bool" },
+      {
+        "internalType": "bool",
+        "name": "isListed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPaused",
+        "type": "bool"
+      },
       {
         "internalType": "contract BLendingToken",
         "name": "bLendingToken",
@@ -710,24 +1084,78 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lendingTokenPerCollateral",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "lendingTokens",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "lendingTokensLength",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "liquidate",
     "outputs": [],
@@ -736,41 +1164,96 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "liquidationThreshold",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "name",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      }
     ],
     "name": "pit",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "pitRemaining",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -788,16 +1271,42 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "projectTokenInfo",
     "outputs": [
-      { "internalType": "bool", "name": "isListed", "type": "bool" },
-      { "internalType": "bool", "name": "isDepositPaused", "type": "bool" },
-      { "internalType": "bool", "name": "isWithdrawPaused", "type": "bool" },
+      {
+        "internalType": "bool",
+        "name": "isListed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isDepositPaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isWithdrawPaused",
+        "type": "bool"
+      },
       {
         "components": [
-          { "internalType": "uint8", "name": "numerator", "type": "uint8" },
-          { "internalType": "uint8", "name": "denominator", "type": "uint8" }
+          {
+            "internalType": "uint8",
+            "name": "numerator",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "denominator",
+            "type": "uint8"
+          }
         ],
         "internalType": "struct PrimaryIndexToken.Ratio",
         "name": "loanToValueRatio",
@@ -805,8 +1314,16 @@
       },
       {
         "components": [
-          { "internalType": "uint8", "name": "numerator", "type": "uint8" },
-          { "internalType": "uint8", "name": "denominator", "type": "uint8" }
+          {
+            "internalType": "uint8",
+            "name": "numerator",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "denominator",
+            "type": "uint8"
+          }
         ],
         "internalType": "struct PrimaryIndexToken.Ratio",
         "name": "liquidationThresholdFactor",
@@ -814,8 +1331,16 @@
       },
       {
         "components": [
-          { "internalType": "uint8", "name": "numerator", "type": "uint8" },
-          { "internalType": "uint8", "name": "denominator", "type": "uint8" }
+          {
+            "internalType": "uint8",
+            "name": "numerator",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "denominator",
+            "type": "uint8"
+          }
         ],
         "internalType": "struct PrimaryIndexToken.Ratio",
         "name": "liquidationIncentive",
@@ -826,22 +1351,44 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "projectTokens",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "projectTokensLength",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "bLendingTokenAmount",
@@ -855,7 +1402,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "lendingTokenAmount",
@@ -895,8 +1446,16 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "renounceRole",
     "outputs": [],
@@ -905,8 +1464,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "lendingTokenAmount",
@@ -914,13 +1481,23 @@
       }
     ],
     "name": "repay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "moderator", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "moderator",
+        "type": "address"
+      }
     ],
     "name": "revokeModerator",
     "outputs": [],
@@ -929,8 +1506,16 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "revokeRole",
     "outputs": [],
@@ -939,24 +1524,80 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
-      { "internalType": "uint256", "name": "_borrowLimit", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_borrowLimit",
+        "type": "uint256"
+      }
     ],
-    "name": "setBorrowLimit",
+    "name": "setBorrowLimitPerCollateral",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_borrowLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "setBorrowLimitPerLendingAsset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "setLendingTokenForColl",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_bLendingToken",
         "type": "address"
       },
-      { "internalType": "bool", "name": "_isPaused", "type": "bool" }
+      {
+        "internalType": "bool",
+        "name": "_isPaused",
+        "type": "bool"
+      }
     ],
     "name": "setLendingTokenInfo",
     "outputs": [],
@@ -965,8 +1606,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_lendingToken", "type": "address" },
-      { "internalType": "bool", "name": "_isPaused", "type": "bool" }
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isPaused",
+        "type": "bool"
+      }
     ],
     "name": "setPausedLendingToken",
     "outputs": [],
@@ -975,9 +1624,21 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_projectToken", "type": "address" },
-      { "internalType": "bool", "name": "_isDepositPaused", "type": "bool" },
-      { "internalType": "bool", "name": "_isWithdrawPaused", "type": "bool" }
+      {
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isDepositPaused",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isWithdrawPaused",
+        "type": "bool"
+      }
     ],
     "name": "setPausedProjectToken",
     "outputs": [],
@@ -986,7 +1647,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_priceOracle", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "_priceOracle",
+        "type": "address"
+      }
     ],
     "name": "setPriceOracle",
     "outputs": [],
@@ -995,7 +1660,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "_projectToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
+      },
       {
         "internalType": "uint8",
         "name": "_loanToValueRatioNumerator",
@@ -1034,7 +1703,37 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "setTotalBorrowPerLendingToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "usdc",
+        "type": "address"
+      }
+    ],
+    "name": "setUSDCToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "lendingTokenAmount",
@@ -1048,51 +1747,163 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
     ],
     "name": "supportsInterface",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "symbol",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "address", "name": "", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
     "name": "totalBorrow",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "totalDepositedProjectToken",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "totalBorrowPerLendingToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "totalDepositedProjectToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "totalOutstanding",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newAdmin", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "totalOutstandingInUSD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
     ],
     "name": "transferAdminship",
     "outputs": [],
@@ -1101,8 +1912,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
     ],
     "name": "updateInterestInBorrowPositions",
     "outputs": [],
@@ -1110,9 +1929,25 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "usdcToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
-      { "internalType": "address", "name": "projectToken", "type": "address" },
-      { "internalType": "address", "name": "lendingToken", "type": "address" },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "projectTokenAmount",
