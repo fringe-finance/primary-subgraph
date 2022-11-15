@@ -518,7 +518,7 @@ export class Withdraw__Params {
   }
 }
 
-export class PrimaryToken__borrowPositionResult {
+export class PrimaryIndexToken__borrowPositionResult {
   value0: BigInt;
   value1: BigInt;
 
@@ -543,7 +543,7 @@ export class PrimaryToken__borrowPositionResult {
   }
 }
 
-export class PrimaryToken__getPositionResult {
+export class PrimaryIndexToken__getPositionResult {
   value0: BigInt;
   value1: BigInt;
   value2: BigInt;
@@ -595,7 +595,7 @@ export class PrimaryToken__getPositionResult {
   }
 }
 
-export class PrimaryToken__healthFactorResult {
+export class PrimaryIndexToken__healthFactorResult {
   value0: BigInt;
   value1: BigInt;
 
@@ -620,7 +620,7 @@ export class PrimaryToken__healthFactorResult {
   }
 }
 
-export class PrimaryToken__lendingTokenInfoResult {
+export class PrimaryIndexToken__lendingTokenInfoResult {
   value0: boolean;
   value1: boolean;
   value2: Address;
@@ -652,7 +652,7 @@ export class PrimaryToken__lendingTokenInfoResult {
   }
 }
 
-export class PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct extends ethereum.Tuple {
+export class PrimaryIndexToken__projectTokenInfoResultLoanToValueRatioStruct extends ethereum.Tuple {
   get numerator(): i32 {
     return this[0].toI32();
   }
@@ -662,7 +662,7 @@ export class PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct extends 
   }
 }
 
-export class PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruct extends ethereum.Tuple {
+export class PrimaryIndexToken__projectTokenInfoResultLiquidationThresholdFactorStruct extends ethereum.Tuple {
   get numerator(): i32 {
     return this[0].toI32();
   }
@@ -672,7 +672,7 @@ export class PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruc
   }
 }
 
-export class PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct extends ethereum.Tuple {
+export class PrimaryIndexToken__projectTokenInfoResultLiquidationIncentiveStruct extends ethereum.Tuple {
   get numerator(): i32 {
     return this[0].toI32();
   }
@@ -682,21 +682,21 @@ export class PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct exte
   }
 }
 
-export class PrimaryToken__projectTokenInfoResult {
+export class PrimaryIndexToken__projectTokenInfoResult {
   value0: boolean;
   value1: boolean;
   value2: boolean;
-  value3: PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct;
-  value4: PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruct;
-  value5: PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct;
+  value3: PrimaryIndexToken__projectTokenInfoResultLoanToValueRatioStruct;
+  value4: PrimaryIndexToken__projectTokenInfoResultLiquidationThresholdFactorStruct;
+  value5: PrimaryIndexToken__projectTokenInfoResultLiquidationIncentiveStruct;
 
   constructor(
     value0: boolean,
     value1: boolean,
     value2: boolean,
-    value3: PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct,
-    value4: PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruct,
-    value5: PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct
+    value3: PrimaryIndexToken__projectTokenInfoResultLoanToValueRatioStruct,
+    value4: PrimaryIndexToken__projectTokenInfoResultLiquidationThresholdFactorStruct,
+    value5: PrimaryIndexToken__projectTokenInfoResultLiquidationIncentiveStruct
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -729,22 +729,22 @@ export class PrimaryToken__projectTokenInfoResult {
     return this.value2;
   }
 
-  getLoanToValueRatio(): PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct {
+  getLoanToValueRatio(): PrimaryIndexToken__projectTokenInfoResultLoanToValueRatioStruct {
     return this.value3;
   }
 
-  getLiquidationThresholdFactor(): PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruct {
+  getLiquidationThresholdFactor(): PrimaryIndexToken__projectTokenInfoResultLiquidationThresholdFactorStruct {
     return this.value4;
   }
 
-  getLiquidationIncentive(): PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct {
+  getLiquidationIncentive(): PrimaryIndexToken__projectTokenInfoResultLiquidationIncentiveStruct {
     return this.value5;
   }
 }
 
-export class PrimaryToken extends ethereum.SmartContract {
-  static bind(address: Address): PrimaryToken {
-    return new PrimaryToken("PrimaryToken", address);
+export class PrimaryIndexToken extends ethereum.SmartContract {
+  static bind(address: Address): PrimaryIndexToken {
+    return new PrimaryIndexToken("PrimaryIndexToken", address);
   }
 
   DEFAULT_ADMIN_ROLE(): Bytes {
@@ -865,7 +865,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     param0: Address,
     param1: Address,
     param2: Address
-  ): PrimaryToken__borrowPositionResult {
+  ): PrimaryIndexToken__borrowPositionResult {
     let result = super.call(
       "borrowPosition",
       "borrowPosition(address,address,address):(uint256,uint256)",
@@ -876,7 +876,7 @@ export class PrimaryToken extends ethereum.SmartContract {
       ]
     );
 
-    return new PrimaryToken__borrowPositionResult(
+    return new PrimaryIndexToken__borrowPositionResult(
       result[0].toBigInt(),
       result[1].toBigInt()
     );
@@ -886,7 +886,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     param0: Address,
     param1: Address,
     param2: Address
-  ): ethereum.CallResult<PrimaryToken__borrowPositionResult> {
+  ): ethereum.CallResult<PrimaryIndexToken__borrowPositionResult> {
     let result = super.tryCall(
       "borrowPosition",
       "borrowPosition(address,address,address):(uint256,uint256)",
@@ -901,7 +901,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PrimaryToken__borrowPositionResult(
+      new PrimaryIndexToken__borrowPositionResult(
         value[0].toBigInt(),
         value[1].toBigInt()
       )
@@ -998,7 +998,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     account: Address,
     projectToken: Address,
     lendingToken: Address
-  ): PrimaryToken__getPositionResult {
+  ): PrimaryIndexToken__getPositionResult {
     let result = super.call(
       "getPosition",
       "getPosition(address,address,address):(uint256,uint256,uint256,uint256,uint256)",
@@ -1009,7 +1009,7 @@ export class PrimaryToken extends ethereum.SmartContract {
       ]
     );
 
-    return new PrimaryToken__getPositionResult(
+    return new PrimaryIndexToken__getPositionResult(
       result[0].toBigInt(),
       result[1].toBigInt(),
       result[2].toBigInt(),
@@ -1022,7 +1022,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     account: Address,
     projectToken: Address,
     lendingToken: Address
-  ): ethereum.CallResult<PrimaryToken__getPositionResult> {
+  ): ethereum.CallResult<PrimaryIndexToken__getPositionResult> {
     let result = super.tryCall(
       "getPosition",
       "getPosition(address,address,address):(uint256,uint256,uint256,uint256,uint256)",
@@ -1037,7 +1037,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PrimaryToken__getPositionResult(
+      new PrimaryIndexToken__getPositionResult(
         value[0].toBigInt(),
         value[1].toBigInt(),
         value[2].toBigInt(),
@@ -1207,7 +1207,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     account: Address,
     projectToken: Address,
     lendingToken: Address
-  ): PrimaryToken__healthFactorResult {
+  ): PrimaryIndexToken__healthFactorResult {
     let result = super.call(
       "healthFactor",
       "healthFactor(address,address,address):(uint256,uint256)",
@@ -1218,7 +1218,7 @@ export class PrimaryToken extends ethereum.SmartContract {
       ]
     );
 
-    return new PrimaryToken__healthFactorResult(
+    return new PrimaryIndexToken__healthFactorResult(
       result[0].toBigInt(),
       result[1].toBigInt()
     );
@@ -1228,7 +1228,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     account: Address,
     projectToken: Address,
     lendingToken: Address
-  ): ethereum.CallResult<PrimaryToken__healthFactorResult> {
+  ): ethereum.CallResult<PrimaryIndexToken__healthFactorResult> {
     let result = super.tryCall(
       "healthFactor",
       "healthFactor(address,address,address):(uint256,uint256)",
@@ -1243,21 +1243,21 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PrimaryToken__healthFactorResult(
+      new PrimaryIndexToken__healthFactorResult(
         value[0].toBigInt(),
         value[1].toBigInt()
       )
     );
   }
 
-  lendingTokenInfo(param0: Address): PrimaryToken__lendingTokenInfoResult {
+  lendingTokenInfo(param0: Address): PrimaryIndexToken__lendingTokenInfoResult {
     let result = super.call(
       "lendingTokenInfo",
       "lendingTokenInfo(address):(bool,bool,address)",
       [ethereum.Value.fromAddress(param0)]
     );
 
-    return new PrimaryToken__lendingTokenInfoResult(
+    return new PrimaryIndexToken__lendingTokenInfoResult(
       result[0].toBoolean(),
       result[1].toBoolean(),
       result[2].toAddress()
@@ -1266,7 +1266,7 @@ export class PrimaryToken extends ethereum.SmartContract {
 
   try_lendingTokenInfo(
     param0: Address
-  ): ethereum.CallResult<PrimaryToken__lendingTokenInfoResult> {
+  ): ethereum.CallResult<PrimaryIndexToken__lendingTokenInfoResult> {
     let result = super.tryCall(
       "lendingTokenInfo",
       "lendingTokenInfo(address):(bool,bool,address)",
@@ -1277,7 +1277,7 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PrimaryToken__lendingTokenInfoResult(
+      new PrimaryIndexToken__lendingTokenInfoResult(
         value[0].toBoolean(),
         value[1].toBoolean(),
         value[2].toAddress()
@@ -1489,32 +1489,32 @@ export class PrimaryToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
-  projectTokenInfo(param0: Address): PrimaryToken__projectTokenInfoResult {
+  projectTokenInfo(param0: Address): PrimaryIndexToken__projectTokenInfoResult {
     let result = super.call(
       "projectTokenInfo",
       "projectTokenInfo(address):(bool,bool,bool,(uint8,uint8),(uint8,uint8),(uint8,uint8))",
       [ethereum.Value.fromAddress(param0)]
     );
 
-    return new PrimaryToken__projectTokenInfoResult(
+    return new PrimaryIndexToken__projectTokenInfoResult(
       result[0].toBoolean(),
       result[1].toBoolean(),
       result[2].toBoolean(),
-      changetype<PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct>(
-        result[3].toTuple()
-      ),
       changetype<
-        PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruct
+        PrimaryIndexToken__projectTokenInfoResultLoanToValueRatioStruct
+      >(result[3].toTuple()),
+      changetype<
+        PrimaryIndexToken__projectTokenInfoResultLiquidationThresholdFactorStruct
       >(result[4].toTuple()),
       changetype<
-        PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct
+        PrimaryIndexToken__projectTokenInfoResultLiquidationIncentiveStruct
       >(result[5].toTuple())
     );
   }
 
   try_projectTokenInfo(
     param0: Address
-  ): ethereum.CallResult<PrimaryToken__projectTokenInfoResult> {
+  ): ethereum.CallResult<PrimaryIndexToken__projectTokenInfoResult> {
     let result = super.tryCall(
       "projectTokenInfo",
       "projectTokenInfo(address):(bool,bool,bool,(uint8,uint8),(uint8,uint8),(uint8,uint8))",
@@ -1525,18 +1525,18 @@ export class PrimaryToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      new PrimaryToken__projectTokenInfoResult(
+      new PrimaryIndexToken__projectTokenInfoResult(
         value[0].toBoolean(),
         value[1].toBoolean(),
         value[2].toBoolean(),
-        changetype<PrimaryToken__projectTokenInfoResultLoanToValueRatioStruct>(
-          value[3].toTuple()
-        ),
         changetype<
-          PrimaryToken__projectTokenInfoResultLiquidationThresholdFactorStruct
+          PrimaryIndexToken__projectTokenInfoResultLoanToValueRatioStruct
+        >(value[3].toTuple()),
+        changetype<
+          PrimaryIndexToken__projectTokenInfoResultLiquidationThresholdFactorStruct
         >(value[4].toTuple()),
         changetype<
-          PrimaryToken__projectTokenInfoResultLiquidationIncentiveStruct
+          PrimaryIndexToken__projectTokenInfoResultLiquidationIncentiveStruct
         >(value[5].toTuple())
       )
     );

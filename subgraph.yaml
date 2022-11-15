@@ -3,10 +3,10 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: PrimaryToken
-    network: goerli
+    name: PrimaryIndexToken
+    network: mainnet
     source:
-      abi: PrimaryToken
+      abi: PrimaryIndexToken
       address: "0x2A840Db9774EA082aB3503aF8509A5E3f90d604d"
       startBlock: 7765355
     mapping:
@@ -18,10 +18,12 @@ dataSources:
         - LendingToken
         - BorrowLog
       abis:
-        - name: PrimaryToken
-          file: ./abis/PrimaryToken.json
+        - name: PrimaryIndexToken
+          file: ./abis/PrimaryIndexToken.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: PriceProviderAggregator
+          file: ./abis/PriceProviderAggregator.json
       eventHandlers:
         - event: AddLendingToken(indexed address,string,string)
           handler: handleAddLendingToken

@@ -25,12 +25,29 @@ type BorrowLog @entity {
   prjTokenAddress: Bytes!
 }
 
-type ChartTotal @entity {
+type CollateralDepositedHistory @entity {
   id: ID!
   amount: BigDecimal!
+  lendingTokenAddress: Bytes
   date: BigInt!
-  type: String!
-  lendingToken: String!
-  lendingTokenAddress: String!
 }
 
+type DepositedHistory @entity {
+  id: ID!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type PITTokenHistory @entity {
+  id: ID!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type TotalState @entity {
+  id: ID!
+  amount: BigDecimal!
+  updatedAt: BigInt!
+}
