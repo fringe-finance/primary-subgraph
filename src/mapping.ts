@@ -41,13 +41,14 @@ import {
     TOTAL_SUPPLY,
     TOTAL_DEPOSITED
 } from "./constants/chartsType";
+import { USD_DECIMALS } from "./constants/decimals";
 import { exponentToBigDecimal } from "./helpers";
-import { Address, BigDecimal, store } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, store } from "@graphprotocol/graph-ts";
 
-function getUsdOraclePrice(primaryIndexToken: PrimaryIndexToken, tokenAddr: Address): BigDecimal {
+function getUsdOraclePrice(primaryIndexToken: PrimaryIndexToken, tokenAddr: Address, amount: BigInt): BigDecimal {
     const priceOracle = PriceProviderAggregator.bind(primaryIndexToken.priceOracle());
 
-    const usdOraclePrice = priceOracle.getPrice(tokenAddr).getPriceMantissa();
+    const usdOraclePrice = priceOracle.getEvaluation(tokenAddr, amount);
 
     return BigDecimal.fromString(usdOraclePrice.toString());
 }
@@ -328,13 +329,11 @@ function handleBorrowInTotalState(event: Borrow): TotalState {
     const id = TOTAL_AMOUNT_COLLATERAL_DEPOSITED;
 
     const primaryIndexToken = PrimaryIndexToken.bind(event.address);
-    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.borrowToken);
+    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.borrowToken, event.params.borrowAmount);
     const lvr = primaryIndexToken.projectTokenInfo(event.params.prjAddress).getLoanToValueRatio();
 
-    const borrowToken = ERC20.bind(event.params.borrowToken);
-    const collateralAmount = event.params.borrowAmount.toBigDecimal()
-        .div(exponentToBigDecimal(borrowToken.decimals()))
-        .times(usdOraclePrice)
+    const collateralAmount = usdOraclePrice
+        .div(exponentToBigDecimal(USD_DECIMALS))
         .times(BigDecimal.fromString(lvr.denominator.toString()))
         .div(BigDecimal.fromString(lvr.numerator.toString()));
 
@@ -356,13 +355,11 @@ function handleRepayBorrowInTotalState(event: RepayBorrow): TotalState {
     const id = TOTAL_AMOUNT_COLLATERAL_DEPOSITED;
 
     const primaryIndexToken = PrimaryIndexToken.bind(event.address);
-    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.borrowToken);
+    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.borrowToken, event.params.borrowAmount);
     const lvr = primaryIndexToken.projectTokenInfo(event.params.prjAddress).getLoanToValueRatio();
 
-    const borrowToken = ERC20.bind(event.params.borrowToken);
-    const collateralAmount = event.params.borrowAmount.toBigDecimal()
-        .div(exponentToBigDecimal(borrowToken.decimals()))
-        .times(usdOraclePrice)
+    const collateralAmount = usdOraclePrice
+        .div(exponentToBigDecimal(USD_DECIMALS))
         .times(BigDecimal.fromString(lvr.denominator.toString()))
         .div(BigDecimal.fromString(lvr.numerator.toString()));
 
@@ -384,12 +381,8 @@ function handleDepositInTotalState(event: Deposit): TotalState {
     const id = TOTAL_DEPOSITED;
 
     const primaryIndexToken = PrimaryIndexToken.bind(event.address);
-    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.tokenPrj);
-
-    const prjToken = ERC20.bind(event.params.tokenPrj);
-    const usdAmount = event.params.prjDepositAmount.toBigDecimal()
-        .div(exponentToBigDecimal(prjToken.decimals()))
-        .times(usdOraclePrice);
+    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.tokenPrj, event.params.prjDepositAmount);
+    const usdAmount = usdOraclePrice.div(exponentToBigDecimal(USD_DECIMALS))
 
     let entity = TotalState.load(id);
     if (entity == null) {
@@ -409,12 +402,9 @@ function handleWithdrawInTotalState(event: Withdraw): TotalState {
     const id = TOTAL_DEPOSITED;
 
     const primaryIndexToken = PrimaryIndexToken.bind(event.address);
-    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.tokenPrj);
+    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, event.params.tokenPrj, event.params.prjWithdrawAmount);
+    const usdAmount = usdOraclePrice.div(exponentToBigDecimal(USD_DECIMALS))
 
-    const prjToken = ERC20.bind(event.params.tokenPrj);
-    const usdAmount = event.params.prjWithdrawAmount.toBigDecimal()
-        .div(exponentToBigDecimal(prjToken.decimals()))
-        .times(usdOraclePrice);
     let entity = TotalState.load(id);
     if (entity == null) {
         entity = new TotalState(id);

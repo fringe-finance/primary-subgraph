@@ -2,17 +2,29 @@
   "name": "test",
   "license": "UNLICENSED",
   "scripts": {
-    "auth": "graph auth --studio ",
+    "auth:studio": "graph auth --studio ",
+    "auth:hosted-service": "graph auth --product hosted-service ",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy-goerli": "graph deploy --studio plp-goerli",
-    "deploy-arbitrum-goerli": "graph deploy --product hosted-service nhattm-lotussoft/plp-arbitrum-goerli",
     "create-local": "graph create --node http://localhost:8020/ test",
     "remove-local": "graph remove --node http://localhost:8020/ test",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 test"
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 test",
+
+    "prepare:goerli": "mustache config/goerli.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-goerli": "graph deploy --studio plp-goerli-dev",
+
+    "prepare:mumbai": "mustache config/mumbai.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-mumbai": "graph deploy --product hosted-service <github_user_name>/plp-mumbai-dev",
+
+    "prepare:arbitrum-goerli": "mustache config/arbitrum-goerli.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-arbitrum-goerli": "graph deploy --product hosted-service <github_user_name>/plp-arbitrum-goerli-dev",
+
+    "prepare:optimism-goerli": "mustache config/optimism-goerli.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-optimism-goerli": "graph deploy --product hosted-service <github_user_name>/plp-optimism-goerli-dev"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.35.0",
-    "@graphprotocol/graph-ts": "0.28.1"
+    "@graphprotocol/graph-ts": "0.28.1",
+    "mustache": "^4.2.0"
   }
 }
