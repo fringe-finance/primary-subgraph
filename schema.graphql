@@ -32,13 +32,6 @@ type CollateralDepositedHistory @entity {
   date: BigInt!
 }
 
-type DepositedHistory @entity {
-  id: ID!
-  amount: BigDecimal!
-  lendingTokenAddress: Bytes
-  date: BigInt!
-}
-
 type PITTokenHistory @entity {
   id: ID!
   amount: BigDecimal!
@@ -46,8 +39,18 @@ type PITTokenHistory @entity {
   date: BigInt!
 }
 
-type TotalState @entity {
+type OutstandingHistory @entity {
   id: ID!
   amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type PositionState @entity {
+  id: ID!
   updatedAt: BigInt!
+  prjTokenAddress: Bytes!
+  lendingTokenAddress: Bytes
+  pit_amount: BigDecimal!
+  collateral_deposited_amount: BigDecimal!
 }

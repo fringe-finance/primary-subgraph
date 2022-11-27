@@ -314,75 +314,6 @@ export class CollateralDepositedHistory extends Entity {
   }
 }
 
-export class DepositedHistory extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save DepositedHistory entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type DepositedHistory must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("DepositedHistory", id.toString(), this);
-    }
-  }
-
-  static load(id: string): DepositedHistory | null {
-    return changetype<DepositedHistory | null>(
-      store.get("DepositedHistory", id)
-    );
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get amount(): BigDecimal {
-    let value = this.get("amount");
-    return value!.toBigDecimal();
-  }
-
-  set amount(value: BigDecimal) {
-    this.set("amount", Value.fromBigDecimal(value));
-  }
-
-  get lendingTokenAddress(): Bytes | null {
-    let value = this.get("lendingTokenAddress");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set lendingTokenAddress(value: Bytes | null) {
-    if (!value) {
-      this.unset("lendingTokenAddress");
-    } else {
-      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
-    }
-  }
-
-  get date(): BigInt {
-    let value = this.get("date");
-    return value!.toBigInt();
-  }
-
-  set date(value: BigInt) {
-    this.set("date", Value.fromBigInt(value));
-  }
-}
-
 export class PITTokenHistory extends Entity {
   constructor(id: string) {
     super();
@@ -450,7 +381,7 @@ export class PITTokenHistory extends Entity {
   }
 }
 
-export class TotalState extends Entity {
+export class OutstandingHistory extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -458,18 +389,20 @@ export class TotalState extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save TotalState entity without an ID");
+    assert(id != null, "Cannot save OutstandingHistory entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type TotalState must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type OutstandingHistory must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("TotalState", id.toString(), this);
+      store.set("OutstandingHistory", id.toString(), this);
     }
   }
 
-  static load(id: string): TotalState | null {
-    return changetype<TotalState | null>(store.get("TotalState", id));
+  static load(id: string): OutstandingHistory | null {
+    return changetype<OutstandingHistory | null>(
+      store.get("OutstandingHistory", id)
+    );
   }
 
   get id(): string {
@@ -490,6 +423,64 @@ export class TotalState extends Entity {
     this.set("amount", Value.fromBigDecimal(value));
   }
 
+  get lendingTokenAddress(): Bytes | null {
+    let value = this.get("lendingTokenAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendingTokenAddress(value: Bytes | null) {
+    if (!value) {
+      this.unset("lendingTokenAddress");
+    } else {
+      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get date(): BigInt {
+    let value = this.get("date");
+    return value!.toBigInt();
+  }
+
+  set date(value: BigInt) {
+    this.set("date", Value.fromBigInt(value));
+  }
+}
+
+export class PositionState extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save PositionState entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type PositionState must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("PositionState", id.toString(), this);
+    }
+  }
+
+  static load(id: string): PositionState | null {
+    return changetype<PositionState | null>(store.get("PositionState", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
   get updatedAt(): BigInt {
     let value = this.get("updatedAt");
     return value!.toBigInt();
@@ -497,5 +488,49 @@ export class TotalState extends Entity {
 
   set updatedAt(value: BigInt) {
     this.set("updatedAt", Value.fromBigInt(value));
+  }
+
+  get prjTokenAddress(): Bytes {
+    let value = this.get("prjTokenAddress");
+    return value!.toBytes();
+  }
+
+  set prjTokenAddress(value: Bytes) {
+    this.set("prjTokenAddress", Value.fromBytes(value));
+  }
+
+  get lendingTokenAddress(): Bytes | null {
+    let value = this.get("lendingTokenAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendingTokenAddress(value: Bytes | null) {
+    if (!value) {
+      this.unset("lendingTokenAddress");
+    } else {
+      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get pit_amount(): BigDecimal {
+    let value = this.get("pit_amount");
+    return value!.toBigDecimal();
+  }
+
+  set pit_amount(value: BigDecimal) {
+    this.set("pit_amount", Value.fromBigDecimal(value));
+  }
+
+  get collateral_deposited_amount(): BigDecimal {
+    let value = this.get("collateral_deposited_amount");
+    return value!.toBigDecimal();
+  }
+
+  set collateral_deposited_amount(value: BigDecimal) {
+    this.set("collateral_deposited_amount", Value.fromBigDecimal(value));
   }
 }

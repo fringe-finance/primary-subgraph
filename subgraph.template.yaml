@@ -17,6 +17,10 @@ dataSources:
         - ProjectToken
         - LendingToken
         - BorrowLog
+        - PositionState
+        - CollateralDepositedHistory
+        - PITTokenHistory
+        - OutstandingHistory
       abis:
         - name: PrimaryIndexToken
           file: ./abis/PrimaryIndexToken.json
