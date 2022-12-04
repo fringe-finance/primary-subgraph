@@ -21,6 +21,10 @@ dataSources:
         - CollateralDepositedHistory
         - PITTokenHistory
         - OutstandingHistory
+        - CollateralVSLoanRatioHistory
+        - LenderAPYHistory
+        - BorrowingAPYHistory
+        - LenderAggregateCapitalDepositedHistory
       abis:
         - name: PrimaryIndexToken
           file: ./abis/PrimaryIndexToken.json
@@ -28,6 +32,8 @@ dataSources:
           file: ./abis/ERC20.json
         - name: PriceProviderAggregator
           file: ./abis/PriceProviderAggregator.json
+        - name: BLendingToken
+          file: ./abis/BLendingToken.json
       eventHandlers:
         - event: AddLendingToken(indexed address,string,string)
           handler: handleAddLendingToken

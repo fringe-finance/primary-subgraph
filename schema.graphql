@@ -46,6 +46,40 @@ type OutstandingHistory @entity {
   date: BigInt!
 }
 
+type CollateralVSLoanRatioHistory @entity {
+  id: ID!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type LenderAPYHistory @entity {
+  id: ID!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type BorrowingAPYHistory @entity {
+  id: ID!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type LenderAggregateCapitalDepositedHistory @entity {
+  id: ID!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  date: BigInt!
+}
+
+type TotalState @entity {
+  id: ID!
+  amount: BigDecimal!
+  updatedAt: BigInt!
+}
+
 type PositionState @entity {
   id: ID!
   updatedAt: BigInt!

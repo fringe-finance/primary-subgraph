@@ -450,6 +450,338 @@ export class OutstandingHistory extends Entity {
   }
 }
 
+export class CollateralVSLoanRatioHistory extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save CollateralVSLoanRatioHistory entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type CollateralVSLoanRatioHistory must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("CollateralVSLoanRatioHistory", id.toString(), this);
+    }
+  }
+
+  static load(id: string): CollateralVSLoanRatioHistory | null {
+    return changetype<CollateralVSLoanRatioHistory | null>(
+      store.get("CollateralVSLoanRatioHistory", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value!.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get lendingTokenAddress(): Bytes | null {
+    let value = this.get("lendingTokenAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendingTokenAddress(value: Bytes | null) {
+    if (!value) {
+      this.unset("lendingTokenAddress");
+    } else {
+      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get date(): BigInt {
+    let value = this.get("date");
+    return value!.toBigInt();
+  }
+
+  set date(value: BigInt) {
+    this.set("date", Value.fromBigInt(value));
+  }
+}
+
+export class LenderAPYHistory extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save LenderAPYHistory entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type LenderAPYHistory must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("LenderAPYHistory", id.toString(), this);
+    }
+  }
+
+  static load(id: string): LenderAPYHistory | null {
+    return changetype<LenderAPYHistory | null>(
+      store.get("LenderAPYHistory", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value!.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get lendingTokenAddress(): Bytes | null {
+    let value = this.get("lendingTokenAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendingTokenAddress(value: Bytes | null) {
+    if (!value) {
+      this.unset("lendingTokenAddress");
+    } else {
+      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get date(): BigInt {
+    let value = this.get("date");
+    return value!.toBigInt();
+  }
+
+  set date(value: BigInt) {
+    this.set("date", Value.fromBigInt(value));
+  }
+}
+
+export class BorrowingAPYHistory extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save BorrowingAPYHistory entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type BorrowingAPYHistory must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("BorrowingAPYHistory", id.toString(), this);
+    }
+  }
+
+  static load(id: string): BorrowingAPYHistory | null {
+    return changetype<BorrowingAPYHistory | null>(
+      store.get("BorrowingAPYHistory", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value!.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get lendingTokenAddress(): Bytes | null {
+    let value = this.get("lendingTokenAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendingTokenAddress(value: Bytes | null) {
+    if (!value) {
+      this.unset("lendingTokenAddress");
+    } else {
+      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get date(): BigInt {
+    let value = this.get("date");
+    return value!.toBigInt();
+  }
+
+  set date(value: BigInt) {
+    this.set("date", Value.fromBigInt(value));
+  }
+}
+
+export class LenderAggregateCapitalDepositedHistory extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save LenderAggregateCapitalDepositedHistory entity without an ID"
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type LenderAggregateCapitalDepositedHistory must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("LenderAggregateCapitalDepositedHistory", id.toString(), this);
+    }
+  }
+
+  static load(id: string): LenderAggregateCapitalDepositedHistory | null {
+    return changetype<LenderAggregateCapitalDepositedHistory | null>(
+      store.get("LenderAggregateCapitalDepositedHistory", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value!.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get lendingTokenAddress(): Bytes | null {
+    let value = this.get("lendingTokenAddress");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set lendingTokenAddress(value: Bytes | null) {
+    if (!value) {
+      this.unset("lendingTokenAddress");
+    } else {
+      this.set("lendingTokenAddress", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get date(): BigInt {
+    let value = this.get("date");
+    return value!.toBigInt();
+  }
+
+  set date(value: BigInt) {
+    this.set("date", Value.fromBigInt(value));
+  }
+}
+
+export class TotalState extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save TotalState entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type TotalState must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("TotalState", id.toString(), this);
+    }
+  }
+
+  static load(id: string): TotalState | null {
+    return changetype<TotalState | null>(store.get("TotalState", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amount(): BigDecimal {
+    let value = this.get("amount");
+    return value!.toBigDecimal();
+  }
+
+  set amount(value: BigDecimal) {
+    this.set("amount", Value.fromBigDecimal(value));
+  }
+
+  get updatedAt(): BigInt {
+    let value = this.get("updatedAt");
+    return value!.toBigInt();
+  }
+
+  set updatedAt(value: BigInt) {
+    this.set("updatedAt", Value.fromBigInt(value));
+  }
+}
+
 export class PositionState extends Entity {
   constructor(id: string) {
     super();

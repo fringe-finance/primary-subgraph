@@ -20,7 +20,10 @@
     "deploy-arbitrum-goerli": "graph deploy --product hosted-service <github_user_name>/plp-arbitrum-goerli-dev",
 
     "prepare:optimism-goerli": "mustache config/optimism-goerli.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-optimism-goerli": "graph deploy --product hosted-service <github_user_name>/plp-optimism-goerli-dev"
+    "deploy-optimism-goerli": "graph deploy --product hosted-service <github_user_name>/plp-optimism-goerli-dev",
+    
+    "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-mainnet": "graph deploy --studio plp-mainnet"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.35.0",

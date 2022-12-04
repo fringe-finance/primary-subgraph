@@ -8,3 +8,11 @@ export function exponentToBigDecimal(decimals: i32): BigDecimal {
   }
   return bd
 }
+
+export function pow(base: BigDecimal, exponent: number): BigDecimal {
+  let result = BigDecimal.fromString("1");
+  for (let i = 0; i < exponent; i++) {
+      result = result.times(base);
+  }
+  return result;
+}
