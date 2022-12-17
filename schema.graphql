@@ -4,6 +4,16 @@ type ProjectToken @entity {
   symbol: String!
   address: Bytes!
   updatedAt: BigInt!
+  isDepositPaused: Boolean
+  isWithdrawPaused: Boolean
+  depositedAmount: BigDecimal
+  lvr: BigDecimal
+  pitAmount: BigDecimal
+  borrowedAmount: BigDecimal
+  outstandingAmount: BigDecimal
+  borrowingLevelAmount: BigDecimal
+  currentBorrowingLevel: BigDecimal
+  underlyingTokens: [ERC20Token!]
 }
 
 type LendingToken @entity {
@@ -12,9 +22,20 @@ type LendingToken @entity {
   symbol: String!
   address: Bytes!
   updatedAt: BigInt!
+  isPaused: Boolean
+  borrowingLevelAmount: BigDecimal
+  underlyingTokens: [ERC20Token!]
 }
 
-type BorrowLog @entity {
+type ERC20Token @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  address: Bytes!
+  linksNumber: BigDecimal
+}
+
+type BorrowLog @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   asset: String!
@@ -25,49 +46,49 @@ type BorrowLog @entity {
   prjTokenAddress: Bytes!
 }
 
-type CollateralDepositedHistory @entity {
+type CollateralDepositedHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
 }
 
-type PITTokenHistory @entity {
+type PITTokenHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
 }
 
-type OutstandingHistory @entity {
+type OutstandingHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
 }
 
-type CollateralVSLoanRatioHistory @entity {
+type CollateralVSLoanRatioHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
 }
 
-type LenderAPYHistory @entity {
+type LenderAPYHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
 }
 
-type BorrowingAPYHistory @entity {
+type BorrowingAPYHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
 }
 
-type LenderAggregateCapitalDepositedHistory @entity {
+type LenderAggregateCapitalDepositedHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   lendingTokenAddress: Bytes
@@ -76,15 +97,27 @@ type LenderAggregateCapitalDepositedHistory @entity {
 
 type TotalState @entity {
   id: ID!
+  type: String!
   amount: BigDecimal!
+  lendingTokenAddress: Bytes
   updatedAt: BigInt!
 }
 
-type PositionState @entity {
+type BorrowedState @entity {
   id: ID!
-  updatedAt: BigInt!
   prjTokenAddress: Bytes!
   lendingTokenAddress: Bytes
-  pit_amount: BigDecimal!
-  collateral_deposited_amount: BigDecimal!
+  updatedAt: BigInt!
+  borrowerAddresses: [Borrower!]
+}
+
+type Borrower @entity {
+  id: ID!
+  address: Bytes!
+  prjTokenAddress: Bytes!
+  lendingTokenAddress: Bytes!
+  updatedAt: BigInt!
+  borrowedAmount: BigDecimal
+  outstandingAmount: BigDecimal
+  depositedAmount: BigDecimal
 }

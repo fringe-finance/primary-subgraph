@@ -1,4 +1,5 @@
-import { LenderAPYHistory, BorrowingAPYHistory, LenderAggregateCapitalDepositedHistory } from './../generated/schema';
+import { UniswapV2Pair } from './../generated/PrimaryIndexToken/UniswapV2Pair';
+import { LenderAPYHistory, BorrowingAPYHistory, LenderAggregateCapitalDepositedHistory, BorrowedState, Borrower, ERC20Token } from './../generated/schema';
 import { BLendingToken } from './../generated/PrimaryIndexToken/BLendingToken';
 import { PriceProviderAggregator } from "./../generated/PrimaryIndexToken/PriceProviderAggregator";
 import {
@@ -20,7 +21,11 @@ import {
     RoleGranted,
     RoleRevoked,
     Supply,
-    Withdraw
+    Withdraw,
+    SetPausedProjectToken,
+    SetPausedLendingToken,
+    SetBorrowLimitPerCollateral,
+    SetBorrowLimitPerLendingAsset
 } from "../generated/PrimaryIndexToken/PrimaryIndexToken";
 import { ERC20 } from "../generated/PrimaryIndexToken/ERC20";
 import {
@@ -33,8 +38,8 @@ import {
     CollateralVSLoanRatioHistory,
     TotalState
 } from "../generated/schema";
-import { TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "./constants/chartsType";
-import { DEPOSIT, BORROWED, REPAY, WITHDRAW } from "./constants/eventsType";
+import { BORROWING_APY, LENDER_APY, TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "./constants/chartsType";
+import { DEPOSIT, BORROW, REPAY, WITHDRAW } from "./constants/eventsType";
 import { USD_DECIMALS, SCALE_DECIMALS } from "./constants/decimals";
 import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "./constants/configs";
 import { exponentToBigDecimal, pow } from "./helpers";
@@ -42,17 +47,35 @@ import { Address, BigDecimal, BigInt, store, dataSource, log } from "@graphproto
 
 export function handleAddPrjToken(event: AddPrjToken): void {
     const id = event.params.tokenPrj.toHex();
-
+    let isAddNew = false;
     let entity = ProjectToken.load(id);
     if (entity == null) {
         entity = new ProjectToken(id);
+        isAddNew = true;
     }
 
     entity.address = event.params.tokenPrj;
     entity.name = event.params.name;
     entity.symbol = event.params.symbol;
     entity.updatedAt = event.block.timestamp;
+    entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.tokenPrj, isAddNew);
+    entity.save();
+}
 
+export function handleAddLendingToken(event: AddLendingToken): void {
+    const id = event.params.lendingToken.toHex();
+    let isAddNew = false;
+    let entity = LendingToken.load(id);
+    if (entity == null) {
+        entity = new LendingToken(id);
+        isAddNew = true;
+    }
+
+    entity.address = event.params.lendingToken;
+    entity.name = event.params.name;
+    entity.symbol = event.params.symbol;
+    entity.updatedAt = event.block.timestamp;
+    entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.lendingToken, isAddNew);
     entity.save();
 }
 
@@ -60,69 +83,130 @@ export function handleRemoveProjectToken(event: RemoveProjectToken): void {
     const id = event.params.tokenPrj.toHex();
 
     let entity = ProjectToken.load(id);
-    if (entity != null) {
-        store.remove("ProjectToken", id);
-    }
-}
-
-export function handleAddLendingToken(event: AddLendingToken): void {
-    const id = event.params.lendingToken.toHex();
-
-    let entity = LendingToken.load(id);
     if (entity == null) {
-        entity = new LendingToken(id);
+        return;
     }
-
-    entity.address = event.params.lendingToken;
-    entity.name = event.params.name;
-    entity.symbol = event.params.symbol;
-    entity.updatedAt = event.block.timestamp;
-
-    entity.save();
+    decreaseUnderlyingToken<ProjectToken>(entity);
+    store.remove("ProjectToken", id);
 }
 
 export function handleRemoveLendingToken(event: RemoveLendingToken): void {
     const id = event.params.lendingToken.toHex();
 
     let entity = LendingToken.load(id);
-    if (entity != null) {
-        store.remove("LendingToken", id);
+    if (entity == null) {
+        return;
     }
+    decreaseUnderlyingToken<LendingToken>(entity);
+    store.remove("LendingToken", id);
+}
+
+export function handleSetPausedProjectToken(event: SetPausedProjectToken): void {
+    const id = event.params._projectToken.toHex();
+    let entity = ProjectToken.load(id);
+    if (entity == null) {
+        return;
+    }
+    entity.isDepositPaused = event.params._isDepositPaused;
+    entity.isWithdrawPaused = event.params._isWithdrawPaused;
+    entity.updatedAt = event.block.timestamp;
+
+    entity.save();
+}
+
+export function handleSetPausedLendingToken(event: SetPausedLendingToken): void {
+    const id = event.params._lendingToken.toHex();
+    let entity = LendingToken.load(id);
+    if (entity == null) {
+        return;
+    }
+    entity.isPaused = event.params._isPaused;
+    entity.updatedAt = event.block.timestamp;
+
+    entity.save();
+}
+
+export function handleSetBorrowLimitPerCollateral(event: SetBorrowLimitPerCollateral): void {
+    const id = event.params.projectToken.toHex();
+    let entity = ProjectToken.load(id);
+    if (entity == null) {
+        return;
+    }
+
+    const borrowLimit = BigDecimal.fromString(event.params._borrowLimit.toString()).div(exponentToBigDecimal(USD_DECIMALS));
+    const borrowedAmount = entity.borrowedAmount;
+    if (borrowedAmount !== null) {
+        entity.currentBorrowingLevel = borrowLimit.notEqual(BigDecimal.fromString("0")) 
+            ? borrowedAmount.div(borrowLimit).times(BigDecimal.fromString("100"))
+            : BigDecimal.fromString("0")
+    }
+    entity.borrowingLevelAmount = borrowLimit;
+    entity.updatedAt = event.block.timestamp;
+
+    entity.save();
+}
+
+export function handleSetBorrowLimitPerLendingAsset(event: SetBorrowLimitPerLendingAsset): void {
+    const id = event.params.lendingToken.toHex();
+    let entity = LendingToken.load(id);
+    if (entity == null) {
+        return;
+    }
+
+    entity.borrowingLevelAmount = BigDecimal.fromString(event.params._borrowLimit.toString()).div(exponentToBigDecimal(USD_DECIMALS));
+    entity.updatedAt = event.block.timestamp;
+
+    entity.save();
+}
+
+export function handleLoanToValueRatioSet(event: LoanToValueRatioSet): void {
+    const id = event.params.tokenPrj.toHex();
+    let entity = ProjectToken.load(id);
+    if (entity == null) {
+        return;
+    }
+
+    const lvrNumerator = BigDecimal.fromString(event.params.lvrNumerator.toString());
+    const lvrDenominator = BigDecimal.fromString(event.params.lvrDenominator.toString());
+    
+    if (lvrDenominator.equals(BigDecimal.fromString("0"))) {
+        return;
+    }
+    entity.lvr = lvrNumerator.div(lvrDenominator).times(BigDecimal.fromString("100"));
+    entity.updatedAt = event.block.timestamp;
+
+    entity.save();
+}
+
+export function handleDeposit(event: Deposit): void {
+    handleBorrowLog<Deposit>(event);
+    handleMultiHistories<Deposit>(event);
+}
+
+export function handleWithdraw(event: Withdraw): void {
+    handleBorrowLog<Withdraw>(event);
+    handleMultiHistories<Withdraw>(event);
 }
 
 export function handleBorrow(event: Borrow): void {
-    handleBorrowInBorrowLog(event);
-    const totalOutstandingAmount = handleBorrowRepayInPositionState<Borrow>(event);
-    updateOutstandingHistory<Borrow>(event, Address.zero(), totalOutstandingAmount);
-    updateCollateralVSLoanRatioHistory<Borrow>(event, Address.zero(), BigDecimal.fromString("0"), totalOutstandingAmount);
+    handleBorrowLog<Borrow>(event);
+    handleBorrowedState(event);
+    handleMultiHistories<Borrow>(event);
     handleLenderAPYHistory<Borrow>(event);
     handleBorrowingAPYHistory<Borrow>(event);
 }
 
-export function handleDeposit(event: Deposit): void {
-    handleDepositInBorrowLog(event);
-    const totalStateUpdated = handleDepositWithdrawInPositionState();
-    updateCollateralDepositedHistory<Deposit>(event, Address.zero(), totalStateUpdated[0]);
-    updatePITTokenHistory<Deposit>(event, totalStateUpdated[1]);
-}
-
 export function handleRepayBorrow(event: RepayBorrow): void {
-    handleRepayBorrowInBorrowLog(event);
-    const totalOutstandingAmount = handleBorrowRepayInPositionState<RepayBorrow>(event);
-    updateOutstandingHistory<RepayBorrow>(event, Address.zero(), totalOutstandingAmount);
-    updateCollateralVSLoanRatioHistory<RepayBorrow>(event, Address.zero(), BigDecimal.fromString("0"), totalOutstandingAmount);
+    handleBorrowLog<RepayBorrow>(event);
+    handleBorrowedState(event);
+    handleMultiHistories<RepayBorrow>(event);
     handleLenderAPYHistory<RepayBorrow>(event);
     handleBorrowingAPYHistory<RepayBorrow>(event);
 }
 
-export function handleWithdraw(event: Withdraw): void {
-    handleWithdrawInBorrowLog(event);
-    const totalStateUpdated = handleDepositWithdrawInPositionState();
-    updateCollateralDepositedHistory<Withdraw>(event, Address.zero(), totalStateUpdated[0]);
-    updatePITTokenHistory<Withdraw>(event, totalStateUpdated[1]);
-}
-
 export function handleLiquidate(event: Liquidate): void {
+    handleBorrowedState(event);
+    handleMultiHistories<Liquidate>(event);
     handleLenderAPYHistory<Liquidate>(event);
     handleBorrowingAPYHistory<Liquidate>(event);
 }
@@ -149,16 +233,68 @@ export function handleLiquidationIncentiveSet(event: LiquidationIncentiveSet): v
 
 export function handleLiquidationThresholdFactorSet(event: LiquidationThresholdFactorSet): void {}
 
-export function handleLoanToValueRatioSet(event: LoanToValueRatioSet): void {}
-
 export function handleRoleAdminChanged(event: RoleAdminChanged): void {}
 
 export function handleRoleGranted(event: RoleGranted): void {}
 
 export function handleRoleRevoked(event: RoleRevoked): void {}
 
+/************************************ Handle ERC20Token ************************************/
+function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean): Array<string> {
+    let underlyingTokensList = new Array<string>();
+    const lpToken = UniswapV2Pair.bind(tokenAddress);
+    const existedLPToken = lpToken.try_token0();
+
+    if (!existedLPToken.reverted) {
+        const token0Address = existedLPToken.value;
+        const token1Address = lpToken.token1();
+        increaseUnderlyingToken(token0Address, isAddNew);
+        increaseUnderlyingToken(token1Address, isAddNew);
+        underlyingTokensList.push(token0Address.toHex());
+        underlyingTokensList.push(token1Address.toHex());
+    }
+    return underlyingTokensList;
+}
+
+
+function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean): void {
+    const token0 = ERC20.bind(tokenAddress);
+    let entity = ERC20Token.load(tokenAddress.toHex());
+    if (entity == null) {
+        entity = new ERC20Token(tokenAddress.toHex());
+        entity.name = token0.name();
+        entity.symbol = token0.symbol();
+        entity.address = tokenAddress;
+    }
+    if (isAddNew) {
+        let numberOfLinks = entity.linksNumber;
+        entity.linksNumber = numberOfLinks !== null ? numberOfLinks.plus(BigDecimal.fromString("1")) : BigDecimal.fromString("1");
+    }
+    entity.save();
+}
+
+function decreaseUnderlyingToken<T>(entity: T): void {
+    const underlyingTokens = entity.underlyingTokens;
+    if (underlyingTokens !== null) {
+        for (let i = 0; i < underlyingTokens.length; i++) {
+            let erc20TokenEntity = ERC20Token.load(underlyingTokens[i]);
+            if (erc20TokenEntity != null) {
+                const numberOfLinks = erc20TokenEntity.linksNumber;
+                if (numberOfLinks !== null) {
+                    if (numberOfLinks.gt(BigDecimal.fromString("1"))) {
+                        erc20TokenEntity.linksNumber = numberOfLinks.minus(BigDecimal.fromString("1"));
+                        erc20TokenEntity.save();
+                    } else {
+                        store.remove("ERC20Token", underlyingTokens[i]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 /************************************ Handle BorrowLog ************************************/
-function handleDepositInBorrowLog(event: Deposit): void {
+function handleBorrowLog<T>(event: T): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
     const id = txhash + "-" + logIndex;
@@ -168,135 +304,86 @@ function handleDepositInBorrowLog(event: Deposit): void {
         entity = new BorrowLog(id);
     }
 
-    const prjToken = ERC20.bind(event.params.tokenPrj);
+    if (event instanceof Deposit || event instanceof Withdraw) {
+        const prjToken = ERC20.bind(event.params.tokenPrj);
 
-    entity.amount = event.params.prjDepositAmount
-        .toBigDecimal()
-        .div(exponentToBigDecimal(prjToken.decimals()));
-    entity.asset = prjToken.symbol();
-    entity.prjToken = prjToken.symbol();
-    entity.type = DEPOSIT;
-    entity.date = event.block.timestamp;
-    entity.userAddress = event.params.who;
-    entity.prjTokenAddress = event.params.tokenPrj;
+        const prjTokenAmount = event instanceof Deposit ? event.params.prjDepositAmount : event.params.prjWithdrawAmount;
+        entity.amount = prjTokenAmount
+            .toBigDecimal()
+            .div(exponentToBigDecimal(prjToken.decimals()));
+        entity.asset = prjToken.symbol();
+        entity.prjToken = prjToken.symbol();
+        entity.type = event instanceof Deposit ? DEPOSIT : WITHDRAW;
+        entity.date = event.block.timestamp;
+        entity.userAddress = event.params.who;
+        entity.prjTokenAddress = event.params.tokenPrj;
+    } else {
+        const borrowToken = ERC20.bind(event.params.borrowToken);
+        const prjToken = ERC20.bind(event.params.prjAddress);
 
-    entity.save();
-}
-
-function handleBorrowInBorrowLog(event: Borrow): void {
-    const txhash = event.transaction.hash.toHex();
-    const logIndex = event.logIndex.toString();
-    const id = txhash + "-" + logIndex;
-
-    let entity = BorrowLog.load(id);
-    if (entity == null) {
-        entity = new BorrowLog(id);
+        entity.amount = event.params.borrowAmount
+            .toBigDecimal()
+            .div(exponentToBigDecimal(borrowToken.decimals()));
+        entity.asset = borrowToken.symbol();
+        entity.prjToken = prjToken.symbol();
+        entity.type = event instanceof Borrow ? BORROW : REPAY;
+        entity.date = event.block.timestamp;
+        entity.userAddress = event.params.who;
+        entity.prjTokenAddress = event.params.prjAddress;
     }
-
-    const borrowToken = ERC20.bind(event.params.borrowToken);
-    const prjToken = ERC20.bind(event.params.prjAddress);
-
-    entity.amount = event.params.borrowAmount
-        .toBigDecimal()
-        .div(exponentToBigDecimal(borrowToken.decimals()));
-    entity.asset = borrowToken.symbol();
-    entity.prjToken = prjToken.symbol();
-    entity.type = BORROWED;
-    entity.date = event.block.timestamp;
-    entity.userAddress = event.params.who;
-    entity.prjTokenAddress = event.params.prjAddress;
-
     entity.save();
 }
 
-function handleRepayBorrowInBorrowLog(event: RepayBorrow): void {
-    const txhash = event.transaction.hash.toHex();
-    const logIndex = event.logIndex.toString();
-    const id = txhash + "-" + logIndex;
+/************************************ Handle MultiHistories ************************************/
+function handleMultiHistories<T>(event: T): void {
+    const totalStateUpdated = handlePositionState<T>(event);
+    updateCollateralDepositedHistory<T>(event, Address.zero(), totalStateUpdated[0]);
+    updatePITTokenHistory<T>(event, totalStateUpdated[1]);
 
-    let entity = BorrowLog.load(id);
-    if (entity == null) {
-        entity = new BorrowLog(id);
-    }
-
-    const borrowToken = ERC20.bind(event.params.borrowToken);
-    const prjToken = ERC20.bind(event.params.prjAddress);
-
-    entity.amount = event.params.borrowAmount
-        .toBigDecimal()
-        .div(exponentToBigDecimal(borrowToken.decimals()));
-    entity.asset = borrowToken.symbol();
-    entity.prjToken = prjToken.symbol();
-    entity.type = REPAY;
-    entity.date = event.block.timestamp;
-    entity.userAddress = event.params.who;
-    entity.prjTokenAddress = event.params.prjAddress;
-
-    entity.save();
+    const totalOutstandingAmount = handleMultiHistoriesPerLending<T>(event);
+    updateOutstandingHistory<T>(event, Address.zero(), totalOutstandingAmount);
+    updateCollateralVSLoanRatioHistory<T>(event, Address.zero(), BigDecimal.fromString("0"), totalOutstandingAmount);
 }
 
-function handleWithdrawInBorrowLog(event: Withdraw): void {
-    const txhash = event.transaction.hash.toHex();
-    const logIndex = event.logIndex.toString();
-    const id = txhash + "-" + logIndex;
-
-    let entity = BorrowLog.load(id);
-    if (entity == null) {
-        entity = new BorrowLog(id);
-    }
-
-    const prjToken = ERC20.bind(event.params.tokenPrj);
-
-    entity.amount = event.params.prjWithdrawAmount
-        .toBigDecimal()
-        .div(exponentToBigDecimal(prjToken.decimals()));
-    entity.asset = prjToken.symbol();
-    entity.prjToken = prjToken.symbol();
-    entity.type = WITHDRAW;
-    entity.date = event.block.timestamp;
-    entity.userAddress = event.params.who;
-    entity.prjTokenAddress = event.params.tokenPrj;
-
-    entity.save();
-}
-
-/************************************ Handle PositionState ************************************/
-function handleBorrowRepayInPositionState<T>(event: T): BigDecimal {
+function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
     const primaryIndexToken = PrimaryIndexToken.bind(event.address);
     let totalOutstandingAmount = BigDecimal.fromString("0");
 
     const lendingTokensList = getLendingTokensList(primaryIndexToken);
     const prjTokensList = getPrjTokensList(primaryIndexToken);
     for (let i = 0; i < lendingTokensList.length; i++) {
-        let totalCollateralDepositedPerToken = BigInt.fromString("0");
+        let outstandingAmount = BigInt.fromString("0");
         let totalCollateralAmount = BigDecimal.fromString("0");
         for (let j = 0; j < prjTokensList.length; j++) {
-            const totalCollateralDepositedPerPair = primaryIndexToken.totalBorrow(prjTokensList[j], lendingTokensList[i]);
-            totalCollateralDepositedPerToken = totalCollateralDepositedPerToken.plus(totalCollateralDepositedPerPair);
+            const totalBorrow = primaryIndexToken.totalBorrow(prjTokensList[j], lendingTokensList[i]);
+            const outstandingAmountPerPair = getOutstandingPerPair<T>(event, primaryIndexToken, prjTokensList[j], lendingTokensList[i]);
+            outstandingAmount = outstandingAmount.plus(outstandingAmountPerPair);
 
             const lvr = primaryIndexToken.projectTokenInfo(prjTokensList[j]).getLoanToValueRatio();
-            const collateralAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[i], totalCollateralDepositedPerPair)
+            const collateralAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[i], totalBorrow)
                 .times(BigDecimal.fromString(lvr.denominator.toString()))
                 .div(BigDecimal.fromString(lvr.numerator.toString()));
             totalCollateralAmount = totalCollateralAmount.plus(collateralAmount);
         }
-        const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, lendingTokensList[i], totalCollateralDepositedPerToken);
-        totalOutstandingAmount = totalOutstandingAmount.plus(usdOraclePrice);
+        const outstandingUSDAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[i], outstandingAmount);
+        totalOutstandingAmount = totalOutstandingAmount.plus(outstandingUSDAmount);
 
         updateCollateralDepositedHistory<T>(event, lendingTokensList[i], totalCollateralAmount);
-        updateOutstandingHistory<T>(event, lendingTokensList[i], usdOraclePrice);
-        updateCollateralVSLoanRatioHistory<T>(event, lendingTokensList[i], totalCollateralAmount, usdOraclePrice);
+        updateOutstandingHistory<T>(event, lendingTokensList[i], outstandingUSDAmount);
+        updateCollateralVSLoanRatioHistory<T>(event, lendingTokensList[i], totalCollateralAmount, outstandingUSDAmount);
     }
     return totalOutstandingAmount;
 }
 
-function handleDepositWithdrawInPositionState(): Array<BigDecimal> {
+/************************************ Handle PositionState ************************************/
+function handlePositionState<T>(event: T): Array<BigDecimal> {
     const primaryIndexToken = PrimaryIndexToken.bind(dataSource.address());
 
     let usdAmount = BigDecimal.fromString("0");
     let totalPITAmount = BigDecimal.fromString("0");
 
     const prjTokensList = getPrjTokensList(primaryIndexToken);
+    const lendingTokensList = getLendingTokensList(primaryIndexToken);
     for (let i = 0; i < prjTokensList.length; i++) {
         const totalDepositedPerToken = primaryIndexToken.totalDepositedProjectToken(prjTokensList[i]);
         const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, prjTokensList[i], totalDepositedPerToken);
@@ -307,12 +394,137 @@ function handleDepositWithdrawInPositionState(): Array<BigDecimal> {
             .times(BigDecimal.fromString(lvr.numerator.toString()))
             .div(BigDecimal.fromString(lvr.denominator.toString()));
         totalPITAmount = totalPITAmount.plus(pitAmount);
+
+        let totalBorrowedUSDAmount = BigDecimal.fromString("0");
+        let totalOutstandingUSDAmount = BigDecimal.fromString("0");
+        for (let j = 0; j < lendingTokensList.length; j++) {
+            const borrowedAmount = primaryIndexToken.totalBorrow(prjTokensList[i], lendingTokensList[j]);
+            const borrowedUSDAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[j], borrowedAmount);
+            totalBorrowedUSDAmount = totalBorrowedUSDAmount.plus(borrowedUSDAmount);
+
+            const outstandingAmount = getOutstandingPerPair<T>(event, primaryIndexToken, prjTokensList[i], lendingTokensList[j]);
+            const outstandingUSDAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[j], outstandingAmount);
+            totalOutstandingUSDAmount = totalOutstandingUSDAmount.plus(outstandingUSDAmount);
+        }
+
+        const prjToken = ERC20.bind(prjTokensList[i]);
+        const depositedAmount = totalDepositedPerToken.toBigDecimal().div(exponentToBigDecimal(prjToken.decimals()));
+        updatePositionState<T>(
+            event, 
+            prjTokensList[i],
+            depositedAmount,
+            pitAmount, 
+            totalBorrowedUSDAmount, 
+            totalOutstandingUSDAmount
+        );
     }
     let totalStateUpdated = new Array<BigDecimal>();
     totalStateUpdated.push(usdAmount);
     totalStateUpdated.push(totalPITAmount);
 
     return totalStateUpdated;
+}
+
+function updatePositionState<T>(event: T, projectTokenAddress: Address, depositedAmount: BigDecimal, pitAmount: BigDecimal, borrowedAmount: BigDecimal, outstandingAmount: BigDecimal): void {
+    const id = projectTokenAddress.toHex();
+    let entity = ProjectToken.load(id);
+    if (entity == null) {
+        return;
+    }
+    entity.depositedAmount = depositedAmount;
+    entity.pitAmount = pitAmount;
+    entity.borrowedAmount = borrowedAmount;
+    entity.outstandingAmount = outstandingAmount;
+    entity.updatedAt = event.block.timestamp;
+    const borrowLimit = entity.borrowingLevelAmount;
+    if (borrowLimit !== null) {
+        entity.currentBorrowingLevel = borrowLimit.notEqual(BigDecimal.fromString("0")) 
+            ? borrowedAmount.div(borrowLimit).times(BigDecimal.fromString("100"))
+            : BigDecimal.fromString("0")
+    }
+    entity.save();
+}
+
+/************************************ Handle BorrowedState ************************************/
+function handleBorrowedState<T>(event: T): void {
+    let prjTokenAddress = Address.zero();
+    let lendingTokenAddress = Address.zero();
+    let borrower = Address.zero();
+    if (event instanceof Liquidate) {
+        prjTokenAddress = event.params.prjAddress;
+        lendingTokenAddress = event.params.lendingToken;
+        borrower = event.params.borrower;
+    } else {
+        prjTokenAddress = event.params.prjAddress;
+        lendingTokenAddress = event.params.borrowToken;
+        borrower = event.params.who;
+    }
+    const id = prjTokenAddress.toHex() + "-" + lendingTokenAddress.toHex();
+    let entity = BorrowedState.load(id);
+    if (entity == null) {
+        entity = new BorrowedState(id);
+    }
+
+    let borrowerList = entity.borrowerAddresses;
+    const borrowerId = borrower.toHex() + "-" + id;
+    const primaryIndexToken = PrimaryIndexToken.bind(event.address);
+    if (primaryIndexToken.totalOutstanding(borrower, prjTokenAddress, lendingTokenAddress).gt(BigInt.fromString("0"))) {
+        if (borrowerList == null) {
+            borrowerList = new Array<string>();
+        }
+        if (!borrowerList.includes(borrowerId)) {
+            const borrowerEntity = Borrower.load(borrowerId);
+            if (borrowerEntity == null) {
+                const borrowerEntity = new Borrower(borrowerId);
+                borrowerEntity.address = borrower;
+                borrowerEntity.prjTokenAddress = prjTokenAddress;
+                borrowerEntity.lendingTokenAddress = lendingTokenAddress;
+                borrowerEntity.updatedAt = event.block.timestamp;
+                borrowerEntity.save();
+            }
+            borrowerList.push(borrowerId);
+        } else {
+            return;
+        }
+    } else {
+        if (borrowerList == null) {
+            return;
+        }
+        if (borrowerList.includes(borrowerId)) {
+            borrowerList.splice(borrowerList.indexOf(borrowerId), 1);
+            store.remove("Borrower", borrowerId);
+        } else {
+            return;
+        }
+    }
+
+    if (borrowerList.length == 0) {
+        store.remove("BorrowedState", id);
+        return;
+    }
+
+    entity.borrowerAddresses = borrowerList;
+    entity.prjTokenAddress = prjTokenAddress;
+    entity.lendingTokenAddress = lendingTokenAddress;
+    entity.updatedAt = event.block.timestamp;
+    entity.save();
+}
+
+/************************************ Handle Borrower ************************************/
+function updateBorrower<T>(event: T, borrower: Address, projectTokenAddress: Address, lendingTokenAddress: Address, depositedAmount: BigDecimal, borrowedAmount: BigDecimal, outstandingAmount: BigDecimal): void {
+    const id = borrower.toHex() + "-" + projectTokenAddress.toHex() + "-" + lendingTokenAddress.toHex();
+
+    let entity = Borrower.load(id);
+    if (entity == null) {
+        return;
+    }
+
+    entity.depositedAmount = depositedAmount;
+    entity.borrowedAmount = borrowedAmount;
+    entity.outstandingAmount = outstandingAmount;
+    entity.updatedAt = event.block.timestamp;
+
+    entity.save();
 }
 
 /************************************ Handle CollateralDepositedHistory ************************************/
@@ -332,7 +544,7 @@ function updateCollateralDepositedHistory<T>(event: T, lendingTokenAddress: Addr
 
     entity.save();
     if (lendingTokenAddress == Address.zero()) {
-        updateTotalState<T>(event, collateralAmount);
+        updateTotalState<T>(event, TOTAL_AMOUNT_COLLATERAL_DEPOSITED, Address.zero(), collateralAmount);
     }
 }
 
@@ -404,18 +616,18 @@ function updateCollateralVSLoanRatioHistory<T>(event : T, lendingTokenAddress: A
 }
 
 /************************************ Handle TotalState ************************************/
-function updateTotalState<T>(event: T, totalCollateralAmount: BigDecimal): TotalState {
-    const id = TOTAL_AMOUNT_COLLATERAL_DEPOSITED;
+function updateTotalState<T>(event: T, stateType: string, lendingTokenAddress: Address, amount: BigDecimal): void {
+    const id = lendingTokenAddress == Address.zero() ? stateType : stateType + "-" + lendingTokenAddress.toHex();
 
     let entity = TotalState.load(id);
     if (entity == null) {
         entity = new TotalState(id);
     }
-    entity.amount = totalCollateralAmount;
+    entity.type = stateType;
+    entity.amount = amount;
+    entity.lendingTokenAddress = lendingTokenAddress == Address.zero() ? null : lendingTokenAddress;
     entity.updatedAt = event.block.timestamp;
     entity.save();
-
-    return entity;
 }
 
 /************************************ Handle LenderAPYHistory ************************************/
@@ -449,6 +661,11 @@ function updateLenderAPYHistory<T>(event : T, lendingTokenAddress: Address, lend
     entity.date = event.block.timestamp;
 
     entity.save();
+    if (lendingTokenAddress == Address.zero()) {
+        updateTotalState<T>(event, LENDER_APY, Address.zero(), lenderAPY);
+    } else {
+        updateTotalState<T>(event, LENDER_APY, lendingTokenAddress, lenderAPY);
+    }
 }
 
 /************************************ Handle BorrowingAPYHistory ************************************/
@@ -482,6 +699,11 @@ function updateBorrowingAPYHistory<T>(event : T, lendingTokenAddress: Address, b
     entity.date = event.block.timestamp;
 
     entity.save();
+    if (lendingTokenAddress == Address.zero()) {
+        updateTotalState<T>(event, BORROWING_APY, Address.zero(), borrowingAPY);
+    } else {
+        updateTotalState<T>(event, BORROWING_APY, lendingTokenAddress, borrowingAPY);
+    }
 }
 
 /************************************ Handle LenderAggregateCapitalDepositedHistory ************************************/
@@ -584,4 +806,29 @@ function getLenderAggregateCapitalDepositedPerLendingToken(primaryIndexToken: Pr
         .div(exponentToBigDecimal(SCALE_DECIMALS));
 
     return usdOraclePrice;
+}
+
+function getOutstandingPerPair<T>(event: T, primaryIndexToken: PrimaryIndexToken, projectTokenAddress: Address, lendingTokenAddress: Address): BigInt {
+    let totalOutstanding = BigInt.zero();
+    const id = projectTokenAddress.toHex() + "-" + lendingTokenAddress.toHex();
+    const borrowedStateEntity = BorrowedState.load(id);
+    if (borrowedStateEntity != null) {
+        const borrowerList = borrowedStateEntity.borrowerAddresses;
+        if (borrowerList !== null) {
+            for (let i = 0; i < borrowerList.length; i++) {
+                const borrowerEntity = Borrower.load(borrowerList[i]);
+                if (borrowerEntity != null) {
+                    const borrower = Address.fromBytes(borrowerEntity.address);
+                    const positionLoan = primaryIndexToken.getPosition(borrower, projectTokenAddress, lendingTokenAddress);
+                    const outstandingAmount = primaryIndexToken.totalOutstanding(borrower, projectTokenAddress, lendingTokenAddress);
+                    const depositedAmount = positionLoan.getDepositedProjectTokenAmount();
+                    const borrowedAmount = positionLoan.getLoanBody();
+
+                    updateBorrower(event, borrower, projectTokenAddress, lendingTokenAddress, depositedAmount.toBigDecimal(), borrowedAmount.toBigDecimal(), outstandingAmount.toBigDecimal());
+                    totalOutstanding = totalOutstanding.plus(outstandingAmount);
+                }
+            }
+        }
+    } 
+    return totalOutstanding;
 }

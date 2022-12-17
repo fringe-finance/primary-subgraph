@@ -450,6 +450,98 @@ export class RoleRevoked__Params {
   }
 }
 
+export class SetBorrowLimitPerCollateral extends ethereum.Event {
+  get params(): SetBorrowLimitPerCollateral__Params {
+    return new SetBorrowLimitPerCollateral__Params(this);
+  }
+}
+
+export class SetBorrowLimitPerCollateral__Params {
+  _event: SetBorrowLimitPerCollateral;
+
+  constructor(event: SetBorrowLimitPerCollateral) {
+    this._event = event;
+  }
+
+  get projectToken(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get _borrowLimit(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class SetBorrowLimitPerLendingAsset extends ethereum.Event {
+  get params(): SetBorrowLimitPerLendingAsset__Params {
+    return new SetBorrowLimitPerLendingAsset__Params(this);
+  }
+}
+
+export class SetBorrowLimitPerLendingAsset__Params {
+  _event: SetBorrowLimitPerLendingAsset;
+
+  constructor(event: SetBorrowLimitPerLendingAsset) {
+    this._event = event;
+  }
+
+  get lendingToken(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get _borrowLimit(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class SetPausedLendingToken extends ethereum.Event {
+  get params(): SetPausedLendingToken__Params {
+    return new SetPausedLendingToken__Params(this);
+  }
+}
+
+export class SetPausedLendingToken__Params {
+  _event: SetPausedLendingToken;
+
+  constructor(event: SetPausedLendingToken) {
+    this._event = event;
+  }
+
+  get _lendingToken(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get _isPaused(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+}
+
+export class SetPausedProjectToken extends ethereum.Event {
+  get params(): SetPausedProjectToken__Params {
+    return new SetPausedProjectToken__Params(this);
+  }
+}
+
+export class SetPausedProjectToken__Params {
+  _event: SetPausedProjectToken;
+
+  constructor(event: SetPausedProjectToken) {
+    this._event = event;
+  }
+
+  get _projectToken(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get _isDepositPaused(): boolean {
+    return this._event.parameters[1].value.toBoolean();
+  }
+
+  get _isWithdrawPaused(): boolean {
+    return this._event.parameters[2].value.toBoolean();
+  }
+}
+
 export class Supply extends ethereum.Event {
   get params(): Supply__Params {
     return new Supply__Params(this);

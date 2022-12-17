@@ -1,7 +1,7 @@
 export const TOTAL_PIT = 'total_pit'
 export const TOTAL_AMOUNT_COLLATERAL_DEPOSITED = 'total_amount_collateral_deposited'
 export const TOTAL_OUTSTANDING = 'total_outstanding'
-export const APY = 'apy'
+export const BORROWING_APY = 'borrowing_apy'
 export const LENDER_APY = 'lender_apy'
 export const TOTAL_SUPPLY = 'total_supply'
 export const COLLATERAL_VS_LOAN_RATIO = 'collateral_vs_loan_ratio'

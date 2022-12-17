@@ -16,8 +16,8 @@ dataSources:
       entities:
         - ProjectToken
         - LendingToken
+        - ERC20Token
         - BorrowLog
-        - PositionState
         - CollateralDepositedHistory
         - PITTokenHistory
         - OutstandingHistory
@@ -25,6 +25,9 @@ dataSources:
         - LenderAPYHistory
         - BorrowingAPYHistory
         - LenderAggregateCapitalDepositedHistory
+        - TotalState
+        - BorrowedState
+        - Borrower
       abis:
         - name: PrimaryIndexToken
           file: ./abis/PrimaryIndexToken.json
@@ -34,6 +37,8 @@ dataSources:
           file: ./abis/PriceProviderAggregator.json
         - name: BLendingToken
           file: ./abis/BLendingToken.json
+        - name: UniswapV2Pair
+          file: ./abis/UniswapV2Pair.json
       eventHandlers:
         - event: AddLendingToken(indexed address,string,string)
           handler: handleAddLendingToken
@@ -71,4 +76,12 @@ dataSources:
           handler: handleSupply
         - event: Withdraw(indexed address,indexed address,address,uint256,indexed address)
           handler: handleWithdraw
+        - event: SetPausedProjectToken(address,bool,bool)
+          handler: handleSetPausedProjectToken
+        - event: SetPausedLendingToken(address,bool)
+          handler: handleSetPausedLendingToken
+        - event: SetBorrowLimitPerCollateral(address,uint256)
+          handler: handleSetBorrowLimitPerCollateral
+        - event: SetBorrowLimitPerLendingAsset(address,uint256)
+          handler: handleSetBorrowLimitPerLendingAsset
       file: ./src/mapping.ts
