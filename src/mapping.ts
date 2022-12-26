@@ -181,51 +181,47 @@ export function handleLoanToValueRatioSet(event: LoanToValueRatioSet): void {
 export function handleDeposit(event: Deposit): void {
     handleBorrowLog<Deposit>(event);
     handleMultiHistories<Deposit>(event);
+    handleAPYHistories<Deposit>(event);
 }
 
 export function handleWithdraw(event: Withdraw): void {
     handleBorrowLog<Withdraw>(event);
     handleMultiHistories<Withdraw>(event);
+    handleAPYHistories<Withdraw>(event);
 }
 
 export function handleBorrow(event: Borrow): void {
     handleBorrowLog<Borrow>(event);
     handleBorrowedState(event);
     handleMultiHistories<Borrow>(event);
-    handleLenderAPYHistory<Borrow>(event);
-    handleBorrowingAPYHistory<Borrow>(event);
+    handleAPYHistories<Borrow>(event);
 }
 
 export function handleRepayBorrow(event: RepayBorrow): void {
     handleBorrowLog<RepayBorrow>(event);
     handleBorrowedState(event);
     handleMultiHistories<RepayBorrow>(event);
-    handleLenderAPYHistory<RepayBorrow>(event);
-    handleBorrowingAPYHistory<RepayBorrow>(event);
+    handleAPYHistories<RepayBorrow>(event);
 }
 
 export function handleLiquidate(event: Liquidate): void {
     handleBorrowedState(event);
     handleMultiHistories<Liquidate>(event);
-    handleLenderAPYHistory<Liquidate>(event);
-    handleBorrowingAPYHistory<Liquidate>(event);
+    handleAPYHistories<Liquidate>(event);
 }
 
 export function handleSupply(event: Supply): void {
-    handleLenderAPYHistory<Supply>(event);
-    handleBorrowingAPYHistory<Supply>(event);
+    handleAPYHistories<Supply>(event);
     handleLenderAggregateCapitalDepositedHistory<Supply>(event);
 }
 
 export function handleRedeem(event: Redeem): void {
-    handleLenderAPYHistory<Redeem>(event);
-    handleBorrowingAPYHistory<Redeem>(event);
+    handleAPYHistories<Redeem>(event);
     handleLenderAggregateCapitalDepositedHistory<Redeem>(event);
 }
 
 export function handleRedeemUnderlying(event: RedeemUnderlying): void {
-    handleLenderAPYHistory<RedeemUnderlying>(event);
-    handleBorrowingAPYHistory<RedeemUnderlying>(event);
+    handleAPYHistories<RedeemUnderlying>(event);
     handleLenderAggregateCapitalDepositedHistory<RedeemUnderlying>(event);
 }
 
@@ -335,6 +331,11 @@ function handleBorrowLog<T>(event: T): void {
 }
 
 /************************************ Handle MultiHistories ************************************/
+function handleAPYHistories<T>(event: T): void {
+    handleLenderAPYHistory<T>(event);
+    handleBorrowingAPYHistory<T>(event);
+}
+
 function handleMultiHistories<T>(event: T): void {
     const totalStateUpdated = handlePositionState<T>(event);
     updateCollateralDepositedHistory<T>(event, Address.zero(), totalStateUpdated[0]);
