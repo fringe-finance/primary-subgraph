@@ -212,17 +212,14 @@ export function handleLiquidate(event: Liquidate): void {
 
 export function handleSupply(event: Supply): void {
     handleAPYHistories<Supply>(event);
-    handleLenderAggregateCapitalDepositedHistory<Supply>(event);
 }
 
 export function handleRedeem(event: Redeem): void {
     handleAPYHistories<Redeem>(event);
-    handleLenderAggregateCapitalDepositedHistory<Redeem>(event);
 }
 
 export function handleRedeemUnderlying(event: RedeemUnderlying): void {
     handleAPYHistories<RedeemUnderlying>(event);
-    handleLenderAggregateCapitalDepositedHistory<RedeemUnderlying>(event);
 }
 
 export function handleLiquidationIncentiveSet(event: LiquidationIncentiveSet): void {}
@@ -334,6 +331,7 @@ function handleBorrowLog<T>(event: T): void {
 function handleAPYHistories<T>(event: T): void {
     handleLenderAPYHistory<T>(event);
     handleBorrowingAPYHistory<T>(event);
+    handleLenderAggregateCapitalDepositedHistory<T>(event);
 }
 
 function handleMultiHistories<T>(event: T): void {
