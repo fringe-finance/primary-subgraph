@@ -1,5 +1,6 @@
+import { LeveragedBorrow, PrimaryIndexTokenLeverage } from './../generated/PrimaryIndexTokenLeverage/PrimaryIndexTokenLeverage';
 import { UniswapV2Pair } from './../generated/PrimaryIndexToken/UniswapV2Pair';
-import { LenderAPYHistory, BorrowingAPYHistory, LenderAggregateCapitalDepositedHistory, BorrowedState, Borrower, ERC20Token } from './../generated/schema';
+import { LenderAPYHistory, BorrowingAPYHistory, LenderAggregateCapitalDepositedHistory, BorrowedState, Borrower, ERC20Token, LeveragedBorrowLog } from './../generated/schema';
 import { BLendingToken } from './../generated/PrimaryIndexToken/BLendingToken';
 import { PriceProviderAggregator } from "./../generated/PrimaryIndexToken/PriceProviderAggregator";
 import {
@@ -39,7 +40,7 @@ import {
     TotalState
 } from "../generated/schema";
 import { BORROWING_APY, LENDER_APY, TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "./constants/chartsType";
-import { DEPOSIT, BORROW, REPAY, WITHDRAW } from "./constants/eventsType";
+import { DEPOSIT, BORROW, REPAY, WITHDRAW, LEVERAGE_BORROW } from "./constants/eventsType";
 import { USD_DECIMALS, SCALE_DECIMALS } from "./constants/decimals";
 import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "./constants/configs";
 import { exponentToBigDecimal, pow } from "./helpers";
@@ -231,6 +232,39 @@ export function handleRoleAdminChanged(event: RoleAdminChanged): void {}
 export function handleRoleGranted(event: RoleGranted): void {}
 
 export function handleRoleRevoked(event: RoleRevoked): void {}
+
+export function handleLeveragedBorrow(event: LeveragedBorrow): void {
+    const txhash = event.transaction.hash.toHex();
+    const logIndex = event.logIndex.toString();
+    const id = txhash + "-" + logIndex;
+    const primaryIndexTokenLeverage = PrimaryIndexTokenLeverage.bind(dataSource.address());
+    const primaryIndexToken = PrimaryIndexToken.bind(primaryIndexTokenLeverage.primaryIndexToken());
+
+    let entity = LeveragedBorrowLog.load(id);
+    if (entity == null) {
+        entity = new LeveragedBorrowLog(id);
+    }
+
+    const prjToken = ERC20.bind(event.params.projectToken);
+    const lendingToken = ERC20.bind(event.params.lendingToken);
+    entity.prjTokenPrice = getUsdOraclePrice(primaryIndexToken, event.params.projectToken, BigInt.fromString(exponentToBigDecimal(prjToken.decimals()).toString()));
+    entity.lendingTokenPrice = getUsdOraclePrice(primaryIndexToken, event.params.lendingToken, BigInt.fromString(exponentToBigDecimal(lendingToken.decimals()).toString()));
+    entity.marginAmount = event.params.margin
+        .toBigDecimal()
+        .div(exponentToBigDecimal(prjToken.decimals()));
+    entity.exposureAmount = event.params.borrowAmount
+        .toBigDecimal()
+        .div(exponentToBigDecimal(prjToken.decimals()));
+    entity.prjToken = prjToken.symbol();
+    entity.lendingToken = lendingToken.symbol();
+    entity.type = LEVERAGE_BORROW;
+    entity.date = event.block.timestamp;
+    entity.userAddress = event.params.user;
+    entity.prjTokenAddress = event.params.projectToken;
+    entity.lendingTokenAddress = event.params.lendingToken;
+    entity.exposureLendingAmount = event.params.lendingAmount.toBigDecimal().div(exponentToBigDecimal(lendingToken.decimals()));
+    entity.save();
+}
 
 /************************************ Handle ERC20Token ************************************/
 function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean): Array<string> {

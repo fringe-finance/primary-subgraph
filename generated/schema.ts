@@ -518,6 +518,148 @@ export class BorrowLog extends Entity {
   }
 }
 
+export class LeveragedBorrowLog extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save LeveragedBorrowLog entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type LeveragedBorrowLog must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("LeveragedBorrowLog", id.toString(), this);
+    }
+  }
+
+  static load(id: string): LeveragedBorrowLog | null {
+    return changetype<LeveragedBorrowLog | null>(
+      store.get("LeveragedBorrowLog", id)
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get prjTokenPrice(): BigDecimal {
+    let value = this.get("prjTokenPrice");
+    return value!.toBigDecimal();
+  }
+
+  set prjTokenPrice(value: BigDecimal) {
+    this.set("prjTokenPrice", Value.fromBigDecimal(value));
+  }
+
+  get lendingTokenPrice(): BigDecimal {
+    let value = this.get("lendingTokenPrice");
+    return value!.toBigDecimal();
+  }
+
+  set lendingTokenPrice(value: BigDecimal) {
+    this.set("lendingTokenPrice", Value.fromBigDecimal(value));
+  }
+
+  get marginAmount(): BigDecimal {
+    let value = this.get("marginAmount");
+    return value!.toBigDecimal();
+  }
+
+  set marginAmount(value: BigDecimal) {
+    this.set("marginAmount", Value.fromBigDecimal(value));
+  }
+
+  get exposureAmount(): BigDecimal {
+    let value = this.get("exposureAmount");
+    return value!.toBigDecimal();
+  }
+
+  set exposureAmount(value: BigDecimal) {
+    this.set("exposureAmount", Value.fromBigDecimal(value));
+  }
+
+  get exposureLendingAmount(): BigDecimal {
+    let value = this.get("exposureLendingAmount");
+    return value!.toBigDecimal();
+  }
+
+  set exposureLendingAmount(value: BigDecimal) {
+    this.set("exposureLendingAmount", Value.fromBigDecimal(value));
+  }
+
+  get prjToken(): string {
+    let value = this.get("prjToken");
+    return value!.toString();
+  }
+
+  set prjToken(value: string) {
+    this.set("prjToken", Value.fromString(value));
+  }
+
+  get lendingToken(): string {
+    let value = this.get("lendingToken");
+    return value!.toString();
+  }
+
+  set lendingToken(value: string) {
+    this.set("lendingToken", Value.fromString(value));
+  }
+
+  get type(): string {
+    let value = this.get("type");
+    return value!.toString();
+  }
+
+  set type(value: string) {
+    this.set("type", Value.fromString(value));
+  }
+
+  get date(): BigInt {
+    let value = this.get("date");
+    return value!.toBigInt();
+  }
+
+  set date(value: BigInt) {
+    this.set("date", Value.fromBigInt(value));
+  }
+
+  get userAddress(): Bytes {
+    let value = this.get("userAddress");
+    return value!.toBytes();
+  }
+
+  set userAddress(value: Bytes) {
+    this.set("userAddress", Value.fromBytes(value));
+  }
+
+  get prjTokenAddress(): Bytes {
+    let value = this.get("prjTokenAddress");
+    return value!.toBytes();
+  }
+
+  set prjTokenAddress(value: Bytes) {
+    this.set("prjTokenAddress", Value.fromBytes(value));
+  }
+
+  get lendingTokenAddress(): Bytes {
+    let value = this.get("lendingTokenAddress");
+    return value!.toBytes();
+  }
+
+  set lendingTokenAddress(value: Bytes) {
+    this.set("lendingTokenAddress", Value.fromBytes(value));
+  }
+}
+
 export class CollateralDepositedHistory extends Entity {
   constructor(id: string) {
     super();

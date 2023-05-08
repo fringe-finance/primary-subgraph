@@ -1,5 +1,9 @@
 {
     "network": "arbitrum-goerli",
-    "address": "",
-    "startBlock": 0
+    "pit_address": "",
+    "pit_startBlock": 0,
+    "instant_leverage_address": "",
+    "instant_leverage_startBlock": 0,
+    "moderator_address": "",
+    "moderator_startBlock": 0
 }

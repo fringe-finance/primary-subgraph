@@ -11,7 +11,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 test",
 
     "prepare:goerli": "mustache config/goerli.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-goerli": "graph deploy --studio plp-goerli-dev",
+    "deploy-goerli": "graph deploy --product hosted-service <github_user_name>/plp-goerli-dev",
 
     "prepare:mumbai": "mustache config/mumbai.json subgraph.template.yaml > subgraph.yaml",
     "deploy-mumbai": "graph deploy --product hosted-service <github_user_name>/plp-mumbai-dev",

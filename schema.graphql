@@ -46,6 +46,22 @@ type BorrowLog @entity(immutable: true) {
   prjTokenAddress: Bytes!
 }
 
+type LeveragedBorrowLog @entity(immutable: true) {
+  id: ID!
+  prjTokenPrice: BigDecimal!
+  lendingTokenPrice: BigDecimal!
+  marginAmount: BigDecimal!
+  exposureAmount: BigDecimal!
+  exposureLendingAmount: BigDecimal!
+  prjToken: String!
+  lendingToken: String!
+  type: String!
+  date: BigInt!
+  userAddress: Bytes!
+  prjTokenAddress: Bytes!
+  lendingTokenAddress: Bytes!
+}
+
 type CollateralDepositedHistory @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
