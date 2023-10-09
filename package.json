@@ -11,19 +11,34 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 test",
 
     "prepare:goerli": "mustache config/goerli.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-goerli": "graph deploy --product hosted-service <github_user_name>/plp-goerli-dev",
+    "deploy-goerli": "graph deploy --product hosted-service locnguyenlotussoft/plp-goerli-test",
 
     "prepare:mumbai": "mustache config/mumbai.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-mumbai": "graph deploy --product hosted-service <github_user_name>/plp-mumbai-dev",
+    "deploy-mumbai": "graph deploy --product hosted-service locnguyenlotussoft/plp-mumbai-test",
 
     "prepare:arbitrum-goerli": "mustache config/arbitrum-goerli.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-arbitrum-goerli": "graph deploy --product hosted-service <github_user_name>/plp-arbitrum-goerli-dev",
+    "deploy-arbitrum-goerli": "graph deploy --product hosted-service locnguyenlotussoft/plp-arbitrum-goerli-test",
 
     "prepare:optimism-goerli": "mustache config/optimism-goerli.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-optimism-goerli": "graph deploy --product hosted-service <github_user_name>/plp-optimism-goerli-dev",
+    "deploy-optimism-goerli": "graph deploy --product hosted-service locnguyenlotussoft/plp-optimism-goerli-test",
+    
+    "prepare:zksync2-testnet": "mustache config/zksync2-testnet.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-zksync2-testnet": "graph deploy --product hosted-service locnguyenlotussoft/plp-zksync2-testnet-test",
     
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml",
-    "deploy-mainnet": "graph deploy --studio plp-mainnet"
+    "deploy-mainnet": "graph deploy --studio plp-mainnet",
+
+    "prepare:matic": "mustache config/matic.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-matic": "graph deploy --studio plp-matic",
+
+    "prepare:optimism": "mustache config/optimism.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-optimism": "graph deploy --studio plp-optimism",
+
+    "prepare:arbitrum-one": "mustache config/arbitrum-one.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-arbitrum-one": "graph deploy --studio plp-arbitrum-one",
+
+    "prepare:zksync-era": "mustache config/zksync-era.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-zksync-era": "graph deploy --studio plp-zksync-era"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.35.0",

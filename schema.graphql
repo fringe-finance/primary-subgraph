@@ -51,8 +51,9 @@ type LeveragedBorrowLog @entity(immutable: true) {
   prjTokenPrice: BigDecimal!
   lendingTokenPrice: BigDecimal!
   marginAmount: BigDecimal!
+  marginCount: BigDecimal!
   exposureAmount: BigDecimal!
-  exposureLendingAmount: BigDecimal!
+  exposureLendingCount: BigDecimal!
   prjToken: String!
   lendingToken: String!
   type: String!

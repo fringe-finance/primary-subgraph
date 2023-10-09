@@ -578,6 +578,15 @@ export class LeveragedBorrowLog extends Entity {
     this.set("marginAmount", Value.fromBigDecimal(value));
   }
 
+  get marginCount(): BigDecimal {
+    let value = this.get("marginCount");
+    return value!.toBigDecimal();
+  }
+
+  set marginCount(value: BigDecimal) {
+    this.set("marginCount", Value.fromBigDecimal(value));
+  }
+
   get exposureAmount(): BigDecimal {
     let value = this.get("exposureAmount");
     return value!.toBigDecimal();
@@ -587,13 +596,13 @@ export class LeveragedBorrowLog extends Entity {
     this.set("exposureAmount", Value.fromBigDecimal(value));
   }
 
-  get exposureLendingAmount(): BigDecimal {
-    let value = this.get("exposureLendingAmount");
+  get exposureLendingCount(): BigDecimal {
+    let value = this.get("exposureLendingCount");
     return value!.toBigDecimal();
   }
 
-  set exposureLendingAmount(value: BigDecimal) {
-    this.set("exposureLendingAmount", Value.fromBigDecimal(value));
+  set exposureLendingCount(value: BigDecimal) {
+    this.set("exposureLendingCount", Value.fromBigDecimal(value));
   }
 
   get prjToken(): string {

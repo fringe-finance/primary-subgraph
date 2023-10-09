@@ -1,34 +1,45 @@
-import { LeveragedBorrow, PrimaryIndexTokenLeverage } from './../generated/PrimaryIndexTokenLeverage/PrimaryIndexTokenLeverage';
-import { UniswapV2Pair } from './../generated/PrimaryIndexToken/UniswapV2Pair';
-import { LenderAPYHistory, BorrowingAPYHistory, LenderAggregateCapitalDepositedHistory, BorrowedState, Borrower, ERC20Token, LeveragedBorrowLog } from './../generated/schema';
-import { BLendingToken } from './../generated/PrimaryIndexToken/BLendingToken';
-import { PriceProviderAggregator } from "./../generated/PrimaryIndexToken/PriceProviderAggregator";
 import {
-    AddPrjToken,
-    AddLendingToken,
+    LeveragedBorrow,
+    PrimaryLendingPlatformLeverage
+} from "./../generated/PrimaryLendingPlatformLeverage/PrimaryLendingPlatformLeverage";
+import { UniswapV2Pair } from "./../generated/PrimaryLendingPlatformModerator/UniswapV2Pair";
+import {
+    LenderAPYHistory,
+    BorrowingAPYHistory,
+    LenderAggregateCapitalDepositedHistory,
+    BorrowedState,
+    Borrower,
+    ERC20Token,
+    LeveragedBorrowLog
+} from "./../generated/schema";
+import { BLendingToken } from "./../generated/PrimaryLendingPlatformV2/BLendingToken";
+import { PriceProviderAggregator } from "./../generated/PrimaryLendingPlatformV2/PriceProviderAggregator";
+import {
     Borrow,
     Deposit,
-    Liquidate,
-    LiquidationIncentiveSet,
-    LiquidationThresholdFactorSet,
-    LoanToValueRatioSet,
-    PrimaryIndexToken,
+    PrimaryLendingPlatformV2,
     Redeem,
     RedeemUnderlying,
-    RemoveProjectToken,
-    RemoveLendingToken,
     RepayBorrow,
     RoleAdminChanged,
     RoleGranted,
     RoleRevoked,
     Supply,
-    Withdraw,
+    Withdraw
+} from "../generated/PrimaryLendingPlatformV2/PrimaryLendingPlatformV2";
+import {
+    AddPrjToken,
+    AddLendingToken,
+    LoanToValueRatioSet,
+    RemoveProjectToken,
+    RemoveLendingToken,
     SetPausedProjectToken,
     SetPausedLendingToken,
-    SetBorrowLimitPerCollateral,
+    SetBorrowLimitPerCollateralAsset,
     SetBorrowLimitPerLendingAsset
-} from "../generated/PrimaryIndexToken/PrimaryIndexToken";
-import { ERC20 } from "../generated/PrimaryIndexToken/ERC20";
+} from "../generated/PrimaryLendingPlatformModerator/PrimaryLendingPlatformModerator";
+
+import { ERC20 } from "../generated/PrimaryLendingPlatformV2/ERC20";
 import {
     BorrowLog,
     CollateralDepositedHistory,
@@ -54,10 +65,10 @@ export function handleAddPrjToken(event: AddPrjToken): void {
         entity = new ProjectToken(id);
         isAddNew = true;
     }
-
+    const token = ERC20.bind(event.params.tokenPrj);
     entity.address = event.params.tokenPrj;
-    entity.name = event.params.name;
-    entity.symbol = event.params.symbol;
+    entity.name = token.name();
+    entity.symbol = token.symbol();
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.tokenPrj, isAddNew);
     entity.save();
@@ -71,10 +82,10 @@ export function handleAddLendingToken(event: AddLendingToken): void {
         entity = new LendingToken(id);
         isAddNew = true;
     }
-
+    const token = ERC20.bind(event.params.lendingToken);
     entity.address = event.params.lendingToken;
-    entity.name = event.params.name;
-    entity.symbol = event.params.symbol;
+    entity.name = token.name();
+    entity.symbol = token.symbol();
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.lendingToken, isAddNew);
     entity.save();
@@ -103,43 +114,45 @@ export function handleRemoveLendingToken(event: RemoveLendingToken): void {
 }
 
 export function handleSetPausedProjectToken(event: SetPausedProjectToken): void {
-    const id = event.params._projectToken.toHex();
+    const id = event.params.projectToken.toHex();
     let entity = ProjectToken.load(id);
     if (entity == null) {
         return;
     }
-    entity.isDepositPaused = event.params._isDepositPaused;
-    entity.isWithdrawPaused = event.params._isWithdrawPaused;
+    entity.isDepositPaused = event.params.isDepositPaused;
+    entity.isWithdrawPaused = event.params.isWithdrawPaused;
     entity.updatedAt = event.block.timestamp;
 
     entity.save();
 }
 
 export function handleSetPausedLendingToken(event: SetPausedLendingToken): void {
-    const id = event.params._lendingToken.toHex();
+    const id = event.params.lendingToken.toHex();
     let entity = LendingToken.load(id);
     if (entity == null) {
         return;
     }
-    entity.isPaused = event.params._isPaused;
+    entity.isPaused = event.params.isPaused;
     entity.updatedAt = event.block.timestamp;
 
     entity.save();
 }
 
-export function handleSetBorrowLimitPerCollateral(event: SetBorrowLimitPerCollateral): void {
+export function handleSetBorrowLimitPerCollateralAsset(event: SetBorrowLimitPerCollateralAsset): void {
     const id = event.params.projectToken.toHex();
     let entity = ProjectToken.load(id);
     if (entity == null) {
         return;
     }
 
-    const borrowLimit = BigDecimal.fromString(event.params._borrowLimit.toString()).div(exponentToBigDecimal(USD_DECIMALS));
+    const borrowLimit = BigDecimal.fromString(event.params.borrowLimit.toString()).div(
+        exponentToBigDecimal(USD_DECIMALS)
+    );
     const borrowedAmount = entity.borrowedAmount;
     if (borrowedAmount !== null) {
-        entity.currentBorrowingLevel = borrowLimit.notEqual(BigDecimal.fromString("0")) 
+        entity.currentBorrowingLevel = borrowLimit.notEqual(BigDecimal.fromString("0"))
             ? borrowedAmount.div(borrowLimit).times(BigDecimal.fromString("100"))
-            : BigDecimal.fromString("0")
+            : BigDecimal.fromString("0");
     }
     entity.borrowingLevelAmount = borrowLimit;
     entity.updatedAt = event.block.timestamp;
@@ -154,7 +167,9 @@ export function handleSetBorrowLimitPerLendingAsset(event: SetBorrowLimitPerLend
         return;
     }
 
-    entity.borrowingLevelAmount = BigDecimal.fromString(event.params._borrowLimit.toString()).div(exponentToBigDecimal(USD_DECIMALS));
+    entity.borrowingLevelAmount = BigDecimal.fromString(event.params.borrowLimit.toString()).div(
+        exponentToBigDecimal(USD_DECIMALS)
+    );
     entity.updatedAt = event.block.timestamp;
 
     entity.save();
@@ -169,7 +184,6 @@ export function handleLoanToValueRatioSet(event: LoanToValueRatioSet): void {
 
     const lvrNumerator = BigDecimal.fromString(event.params.lvrNumerator.toString());
     const lvrDenominator = BigDecimal.fromString(event.params.lvrDenominator.toString());
-    
     if (lvrDenominator.equals(BigDecimal.fromString("0"))) {
         return;
     }
@@ -205,12 +219,6 @@ export function handleRepayBorrow(event: RepayBorrow): void {
     handleAPYHistories<RepayBorrow>(event);
 }
 
-export function handleLiquidate(event: Liquidate): void {
-    handleBorrowedState(event);
-    handleMultiHistories<Liquidate>(event);
-    handleAPYHistories<Liquidate>(event);
-}
-
 export function handleSupply(event: Supply): void {
     handleAPYHistories<Supply>(event);
 }
@@ -223,47 +231,11 @@ export function handleRedeemUnderlying(event: RedeemUnderlying): void {
     handleAPYHistories<RedeemUnderlying>(event);
 }
 
-export function handleLiquidationIncentiveSet(event: LiquidationIncentiveSet): void {}
-
-export function handleLiquidationThresholdFactorSet(event: LiquidationThresholdFactorSet): void {}
-
-export function handleRoleAdminChanged(event: RoleAdminChanged): void {}
-
-export function handleRoleGranted(event: RoleGranted): void {}
-
-export function handleRoleRevoked(event: RoleRevoked): void {}
-
 export function handleLeveragedBorrow(event: LeveragedBorrow): void {
-    const txhash = event.transaction.hash.toHex();
-    const logIndex = event.logIndex.toString();
-    const id = txhash + "-" + logIndex;
-    const primaryIndexTokenLeverage = PrimaryIndexTokenLeverage.bind(dataSource.address());
-    const primaryIndexToken = PrimaryIndexToken.bind(primaryIndexTokenLeverage.primaryIndexToken());
-
-    let entity = LeveragedBorrowLog.load(id);
-    if (entity == null) {
-        entity = new LeveragedBorrowLog(id);
-    }
-
-    const prjToken = ERC20.bind(event.params.projectToken);
-    const lendingToken = ERC20.bind(event.params.lendingToken);
-    entity.prjTokenPrice = getUsdOraclePrice(primaryIndexToken, event.params.projectToken, BigInt.fromString(exponentToBigDecimal(prjToken.decimals()).toString()));
-    entity.lendingTokenPrice = getUsdOraclePrice(primaryIndexToken, event.params.lendingToken, BigInt.fromString(exponentToBigDecimal(lendingToken.decimals()).toString()));
-    entity.marginAmount = event.params.margin
-        .toBigDecimal()
-        .div(exponentToBigDecimal(prjToken.decimals()));
-    entity.exposureAmount = event.params.borrowAmount
-        .toBigDecimal()
-        .div(exponentToBigDecimal(prjToken.decimals()));
-    entity.prjToken = prjToken.symbol();
-    entity.lendingToken = lendingToken.symbol();
-    entity.type = LEVERAGE_BORROW;
-    entity.date = event.block.timestamp;
-    entity.userAddress = event.params.user;
-    entity.prjTokenAddress = event.params.projectToken;
-    entity.lendingTokenAddress = event.params.lendingToken;
-    entity.exposureLendingAmount = event.params.lendingAmount.toBigDecimal().div(exponentToBigDecimal(lendingToken.decimals()));
-    entity.save();
+    handleLeveragedBorrowLog(event);
+    handleBorrowedState<LeveragedBorrow>(event);
+    handleMultiHistories<LeveragedBorrow>(event);
+    handleAPYHistories<LeveragedBorrow>(event);
 }
 
 /************************************ Handle ERC20Token ************************************/
@@ -283,7 +255,6 @@ function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean):
     return underlyingTokensList;
 }
 
-
 function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean): void {
     const token0 = ERC20.bind(tokenAddress);
     let entity = ERC20Token.load(tokenAddress.toHex());
@@ -295,7 +266,10 @@ function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean): void
     }
     if (isAddNew) {
         let numberOfLinks = entity.linksNumber;
-        entity.linksNumber = numberOfLinks !== null ? numberOfLinks.plus(BigDecimal.fromString("1")) : BigDecimal.fromString("1");
+        entity.linksNumber =
+            numberOfLinks !== null
+                ? numberOfLinks.plus(BigDecimal.fromString("1"))
+                : BigDecimal.fromString("1");
     }
     entity.save();
 }
@@ -334,10 +308,9 @@ function handleBorrowLog<T>(event: T): void {
     if (event instanceof Deposit || event instanceof Withdraw) {
         const prjToken = ERC20.bind(event.params.tokenPrj);
 
-        const prjTokenAmount = event instanceof Deposit ? event.params.prjDepositAmount : event.params.prjWithdrawAmount;
-        entity.amount = prjTokenAmount
-            .toBigDecimal()
-            .div(exponentToBigDecimal(prjToken.decimals()));
+        const prjTokenAmount =
+            event instanceof Deposit ? event.params.prjDepositAmount : event.params.prjWithdrawAmount;
+        entity.amount = prjTokenAmount.toBigDecimal().div(exponentToBigDecimal(prjToken.decimals()));
         entity.asset = prjToken.symbol();
         entity.prjToken = prjToken.symbol();
         entity.type = event instanceof Deposit ? DEPOSIT : WITHDRAW;
@@ -361,6 +334,55 @@ function handleBorrowLog<T>(event: T): void {
     entity.save();
 }
 
+/************************************ Handle LeveragedBorrowLog ************************************/
+function handleLeveragedBorrowLog<T>(event: T): void {
+    const txhash = event.transaction.hash.toHex();
+    const logIndex = event.logIndex.toString();
+    const id = txhash + "-" + logIndex;
+    const primaryLendingPlatformLeverage = PrimaryLendingPlatformLeverage.bind(dataSource.address());
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        primaryLendingPlatformLeverage.primaryLendingPlatform()
+    );
+
+    let entity = LeveragedBorrowLog.load(id);
+    if (entity == null) {
+        entity = new LeveragedBorrowLog(id);
+    }
+
+    const prjToken = ERC20.bind(event.params.projectToken);
+    const lendingToken = ERC20.bind(event.params.lendingToken);
+    const projectTokenPrice = getUsdOraclePrice(
+        primaryLendingPlatformV2,
+        event.params.projectToken,
+        BigInt.fromString(exponentToBigDecimal(prjToken.decimals()).toString())
+    );
+    entity.prjTokenPrice = projectTokenPrice;
+    entity.lendingTokenPrice = getUsdOraclePrice(
+        primaryLendingPlatformV2,
+        event.params.lendingToken,
+        BigInt.fromString(exponentToBigDecimal(lendingToken.decimals()).toString())
+    );
+    entity.marginCount = event.params.margin.toBigDecimal().div(exponentToBigDecimal(prjToken.decimals()));
+    entity.marginAmount = event.params.margin
+        .toBigDecimal()
+        .times(projectTokenPrice)
+        .div(exponentToBigDecimal(prjToken.decimals()));
+    entity.exposureAmount = event.params.notionalExposure
+        .toBigDecimal()
+        .div(exponentToBigDecimal(USD_DECIMALS));
+    entity.prjToken = prjToken.symbol();
+    entity.lendingToken = lendingToken.symbol();
+    entity.type = LEVERAGE_BORROW;
+    entity.date = event.block.timestamp;
+    entity.userAddress = event.params.user;
+    entity.prjTokenAddress = event.params.projectToken;
+    entity.lendingTokenAddress = event.params.lendingToken;
+    entity.exposureLendingCount = event.params.lendingAmount
+        .toBigDecimal()
+        .div(exponentToBigDecimal(lendingToken.decimals()));
+    entity.save();
+}
+
 /************************************ Handle MultiHistories ************************************/
 function handleAPYHistories<T>(event: T): void {
     handleLenderAPYHistory<T>(event);
@@ -375,54 +397,89 @@ function handleMultiHistories<T>(event: T): void {
 
     const totalOutstandingAmount = handleMultiHistoriesPerLending<T>(event);
     updateOutstandingHistory<T>(event, Address.zero(), totalOutstandingAmount);
-    updateCollateralVSLoanRatioHistory<T>(event, Address.zero(), BigDecimal.fromString("0"), totalOutstandingAmount);
+    updateCollateralVSLoanRatioHistory<T>(
+        event,
+        Address.zero(),
+        BigDecimal.fromString("0"),
+        totalOutstandingAmount
+    );
 }
 
 function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
-    const primaryIndexToken = PrimaryIndexToken.bind(event.address);
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        event instanceof LeveragedBorrow
+            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
+            : event.address
+    );
     let totalOutstandingAmount = BigDecimal.fromString("0");
 
-    const lendingTokensList = getLendingTokensList(primaryIndexToken);
-    const prjTokensList = getPrjTokensList(primaryIndexToken);
+    const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
+    const prjTokensList = getPrjTokensList(primaryLendingPlatformV2);
     for (let i = 0; i < lendingTokensList.length; i++) {
         let outstandingAmount = BigInt.fromString("0");
         let totalCollateralAmount = BigDecimal.fromString("0");
         for (let j = 0; j < prjTokensList.length; j++) {
-            const totalBorrow = primaryIndexToken.totalBorrow(prjTokensList[j], lendingTokensList[i]);
-            const outstandingAmountPerPair = getOutstandingPerPair<T>(event, primaryIndexToken, prjTokensList[j], lendingTokensList[i]);
+            const totalBorrow = primaryLendingPlatformV2.totalBorrow(prjTokensList[j], lendingTokensList[i]);
+            const outstandingAmountPerPair = getOutstandingPerPair<T>(
+                event,
+                primaryLendingPlatformV2,
+                prjTokensList[j],
+                lendingTokensList[i]
+            );
             outstandingAmount = outstandingAmount.plus(outstandingAmountPerPair);
 
-            const lvr = primaryIndexToken.projectTokenInfo(prjTokensList[j]).getLoanToValueRatio();
-            const collateralAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[i], totalBorrow)
+            const lvr = primaryLendingPlatformV2.projectTokenInfo(prjTokensList[j]).getLoanToValueRatio();
+            const collateralAmount = getUsdOraclePrice(
+                primaryLendingPlatformV2,
+                lendingTokensList[i],
+                totalBorrow
+            )
                 .times(BigDecimal.fromString(lvr.denominator.toString()))
                 .div(BigDecimal.fromString(lvr.numerator.toString()));
             totalCollateralAmount = totalCollateralAmount.plus(collateralAmount);
         }
-        const outstandingUSDAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[i], outstandingAmount);
+        const outstandingUSDAmount = getUsdOraclePrice(
+            primaryLendingPlatformV2,
+            lendingTokensList[i],
+            outstandingAmount
+        );
         totalOutstandingAmount = totalOutstandingAmount.plus(outstandingUSDAmount);
 
         updateCollateralDepositedHistory<T>(event, lendingTokensList[i], totalCollateralAmount);
         updateOutstandingHistory<T>(event, lendingTokensList[i], outstandingUSDAmount);
-        updateCollateralVSLoanRatioHistory<T>(event, lendingTokensList[i], totalCollateralAmount, outstandingUSDAmount);
+        updateCollateralVSLoanRatioHistory<T>(
+            event,
+            lendingTokensList[i],
+            totalCollateralAmount,
+            outstandingUSDAmount
+        );
     }
     return totalOutstandingAmount;
 }
 
 /************************************ Handle PositionState ************************************/
 function handlePositionState<T>(event: T): Array<BigDecimal> {
-    const primaryIndexToken = PrimaryIndexToken.bind(dataSource.address());
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        event instanceof LeveragedBorrow
+            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
+            : event.address
+    );
 
     let usdAmount = BigDecimal.fromString("0");
     let totalPITAmount = BigDecimal.fromString("0");
 
-    const prjTokensList = getPrjTokensList(primaryIndexToken);
-    const lendingTokensList = getLendingTokensList(primaryIndexToken);
+    const prjTokensList = getPrjTokensList(primaryLendingPlatformV2);
+    const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
     for (let i = 0; i < prjTokensList.length; i++) {
-        const totalDepositedPerToken = primaryIndexToken.totalDepositedProjectToken(prjTokensList[i]);
-        const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, prjTokensList[i], totalDepositedPerToken);
+        const totalDepositedPerToken = primaryLendingPlatformV2.totalDepositedProjectToken(prjTokensList[i]);
+        const usdOraclePrice = getUsdOraclePrice(
+            primaryLendingPlatformV2,
+            prjTokensList[i],
+            totalDepositedPerToken
+        );
         usdAmount = usdAmount.plus(usdOraclePrice);
 
-        const lvr = primaryIndexToken.projectTokenInfo(prjTokensList[i]).getLoanToValueRatio();
+        const lvr = primaryLendingPlatformV2.projectTokenInfo(prjTokensList[i]).getLoanToValueRatio();
         const pitAmount = usdOraclePrice
             .times(BigDecimal.fromString(lvr.numerator.toString()))
             .div(BigDecimal.fromString(lvr.denominator.toString()));
@@ -431,23 +488,41 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
         let totalBorrowedUSDAmount = BigDecimal.fromString("0");
         let totalOutstandingUSDAmount = BigDecimal.fromString("0");
         for (let j = 0; j < lendingTokensList.length; j++) {
-            const borrowedAmount = primaryIndexToken.totalBorrow(prjTokensList[i], lendingTokensList[j]);
-            const borrowedUSDAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[j], borrowedAmount);
+            const borrowedAmount = primaryLendingPlatformV2.totalBorrow(
+                prjTokensList[i],
+                lendingTokensList[j]
+            );
+            const borrowedUSDAmount = getUsdOraclePrice(
+                primaryLendingPlatformV2,
+                lendingTokensList[j],
+                borrowedAmount
+            );
             totalBorrowedUSDAmount = totalBorrowedUSDAmount.plus(borrowedUSDAmount);
 
-            const outstandingAmount = getOutstandingPerPair<T>(event, primaryIndexToken, prjTokensList[i], lendingTokensList[j]);
-            const outstandingUSDAmount = getUsdOraclePrice(primaryIndexToken, lendingTokensList[j], outstandingAmount);
+            const outstandingAmount = getOutstandingPerPair<T>(
+                event,
+                primaryLendingPlatformV2,
+                prjTokensList[i],
+                lendingTokensList[j]
+            );
+            const outstandingUSDAmount = getUsdOraclePrice(
+                primaryLendingPlatformV2,
+                lendingTokensList[j],
+                outstandingAmount
+            );
             totalOutstandingUSDAmount = totalOutstandingUSDAmount.plus(outstandingUSDAmount);
         }
 
         const prjToken = ERC20.bind(prjTokensList[i]);
-        const depositedAmount = totalDepositedPerToken.toBigDecimal().div(exponentToBigDecimal(prjToken.decimals()));
+        const depositedAmount = totalDepositedPerToken
+            .toBigDecimal()
+            .div(exponentToBigDecimal(prjToken.decimals()));
         updatePositionState<T>(
-            event, 
+            event,
             prjTokensList[i],
             depositedAmount,
-            pitAmount, 
-            totalBorrowedUSDAmount, 
+            pitAmount,
+            totalBorrowedUSDAmount,
             totalOutstandingUSDAmount
         );
     }
@@ -458,7 +533,14 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
     return totalStateUpdated;
 }
 
-function updatePositionState<T>(event: T, projectTokenAddress: Address, depositedAmount: BigDecimal, pitAmount: BigDecimal, borrowedAmount: BigDecimal, outstandingAmount: BigDecimal): void {
+function updatePositionState<T>(
+    event: T,
+    projectTokenAddress: Address,
+    depositedAmount: BigDecimal,
+    pitAmount: BigDecimal,
+    borrowedAmount: BigDecimal,
+    outstandingAmount: BigDecimal
+): void {
     const id = projectTokenAddress.toHex();
     let entity = ProjectToken.load(id);
     if (entity == null) {
@@ -471,9 +553,9 @@ function updatePositionState<T>(event: T, projectTokenAddress: Address, deposite
     entity.updatedAt = event.block.timestamp;
     const borrowLimit = entity.borrowingLevelAmount;
     if (borrowLimit !== null) {
-        entity.currentBorrowingLevel = borrowLimit.notEqual(BigDecimal.fromString("0")) 
+        entity.currentBorrowingLevel = borrowLimit.notEqual(BigDecimal.fromString("0"))
             ? borrowedAmount.div(borrowLimit).times(BigDecimal.fromString("100"))
-            : BigDecimal.fromString("0")
+            : BigDecimal.fromString("0");
     }
     entity.save();
 }
@@ -483,10 +565,10 @@ function handleBorrowedState<T>(event: T): void {
     let prjTokenAddress = Address.zero();
     let lendingTokenAddress = Address.zero();
     let borrower = Address.zero();
-    if (event instanceof Liquidate) {
-        prjTokenAddress = event.params.prjAddress;
+    if (event instanceof LeveragedBorrow) {
+        prjTokenAddress = event.params.projectToken;
         lendingTokenAddress = event.params.lendingToken;
-        borrower = event.params.borrower;
+        borrower = event.params.user;
     } else {
         prjTokenAddress = event.params.prjAddress;
         lendingTokenAddress = event.params.borrowToken;
@@ -500,8 +582,16 @@ function handleBorrowedState<T>(event: T): void {
 
     let borrowerList = entity.borrowerAddresses;
     const borrowerId = borrower.toHex() + "-" + id;
-    const primaryIndexToken = PrimaryIndexToken.bind(event.address);
-    if (primaryIndexToken.totalOutstanding(borrower, prjTokenAddress, lendingTokenAddress).gt(BigInt.fromString("0"))) {
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        event instanceof LeveragedBorrow
+            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
+            : event.address
+    );
+    if (
+        primaryLendingPlatformV2
+            .totalOutstanding(borrower, prjTokenAddress, lendingTokenAddress)
+            .gt(BigInt.fromString("0"))
+    ) {
         if (borrowerList == null) {
             borrowerList = new Array<string>();
         }
@@ -544,7 +634,15 @@ function handleBorrowedState<T>(event: T): void {
 }
 
 /************************************ Handle Borrower ************************************/
-function updateBorrower<T>(event: T, borrower: Address, projectTokenAddress: Address, lendingTokenAddress: Address, depositedAmount: BigDecimal, borrowedAmount: BigDecimal, outstandingAmount: BigDecimal): void {
+function updateBorrower<T>(
+    event: T,
+    borrower: Address,
+    projectTokenAddress: Address,
+    lendingTokenAddress: Address,
+    depositedAmount: BigDecimal,
+    borrowedAmount: BigDecimal,
+    outstandingAmount: BigDecimal
+): void {
     const id = borrower.toHex() + "-" + projectTokenAddress.toHex() + "-" + lendingTokenAddress.toHex();
 
     let entity = Borrower.load(id);
@@ -561,10 +659,17 @@ function updateBorrower<T>(event: T, borrower: Address, projectTokenAddress: Add
 }
 
 /************************************ Handle CollateralDepositedHistory ************************************/
-function updateCollateralDepositedHistory<T>(event: T, lendingTokenAddress: Address, collateralAmount: BigDecimal): void {
+function updateCollateralDepositedHistory<T>(
+    event: T,
+    lendingTokenAddress: Address,
+    collateralAmount: BigDecimal
+): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
-    const id = lendingTokenAddress == Address.zero() ? txhash + "-" + logIndex : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
+    const id =
+        lendingTokenAddress == Address.zero()
+            ? txhash + "-" + logIndex
+            : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
 
     let entity = CollateralDepositedHistory.load(id);
     if (entity == null) {
@@ -582,7 +687,7 @@ function updateCollateralDepositedHistory<T>(event: T, lendingTokenAddress: Addr
 }
 
 /************************************ Handle PITTokenHistory ************************************/
-function updatePITTokenHistory<T>(event : T, pitAmount: BigDecimal): void {
+function updatePITTokenHistory<T>(event: T, pitAmount: BigDecimal): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
     const id = txhash + "-" + logIndex;
@@ -600,10 +705,17 @@ function updatePITTokenHistory<T>(event : T, pitAmount: BigDecimal): void {
 }
 
 /************************************ Handle OutstandingHistory ************************************/
-function updateOutstandingHistory<T>(event : T, lendingTokenAddress: Address, outstandingAmount: BigDecimal): void {
+function updateOutstandingHistory<T>(
+    event: T,
+    lendingTokenAddress: Address,
+    outstandingAmount: BigDecimal
+): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
-    const id = lendingTokenAddress == Address.zero() ? txhash + "-" + logIndex : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
+    const id =
+        lendingTokenAddress == Address.zero()
+            ? txhash + "-" + logIndex
+            : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
 
     let entity = OutstandingHistory.load(id);
     if (entity == null) {
@@ -618,13 +730,21 @@ function updateOutstandingHistory<T>(event : T, lendingTokenAddress: Address, ou
 }
 
 /************************************ Handle CollateralVSLoanRatioHistory ************************************/
-function updateCollateralVSLoanRatioHistory<T>(event : T, lendingTokenAddress: Address, collateralAmount: BigDecimal, outstandingAmount: BigDecimal): void {
+function updateCollateralVSLoanRatioHistory<T>(
+    event: T,
+    lendingTokenAddress: Address,
+    collateralAmount: BigDecimal,
+    outstandingAmount: BigDecimal
+): void {
     if (outstandingAmount.le(BigDecimal.fromString("0"))) {
         return;
     }
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
-    const id = lendingTokenAddress == Address.zero() ? txhash + "-" + logIndex : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
+    const id =
+        lendingTokenAddress == Address.zero()
+            ? txhash + "-" + logIndex
+            : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
 
     let specifiedCollateralAmount = collateralAmount;
     if (lendingTokenAddress == Address.zero()) {
@@ -649,8 +769,14 @@ function updateCollateralVSLoanRatioHistory<T>(event : T, lendingTokenAddress: A
 }
 
 /************************************ Handle TotalState ************************************/
-function updateTotalState<T>(event: T, stateType: string, lendingTokenAddress: Address, amount: BigDecimal): void {
-    const id = lendingTokenAddress == Address.zero() ? stateType : stateType + "-" + lendingTokenAddress.toHex();
+function updateTotalState<T>(
+    event: T,
+    stateType: string,
+    lendingTokenAddress: Address,
+    amount: BigDecimal
+): void {
+    const id =
+        lendingTokenAddress == Address.zero() ? stateType : stateType + "-" + lendingTokenAddress.toHex();
 
     let entity = TotalState.load(id);
     if (entity == null) {
@@ -665,24 +791,35 @@ function updateTotalState<T>(event: T, stateType: string, lendingTokenAddress: A
 
 /************************************ Handle LenderAPYHistory ************************************/
 function handleLenderAPYHistory<T>(event: T): void {
-    const primaryIndexToken = PrimaryIndexToken.bind(event.address);
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        event instanceof LeveragedBorrow
+            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
+            : event.address
+    );
     let totalLenderAPY = BigDecimal.fromString("0");
 
-    const lendingTokensList = getLendingTokensList(primaryIndexToken);
+    const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
     for (let i = 0; i < lendingTokensList.length; i++) {
-        const lenderAPY = getLenderAPYPerLendingToken(primaryIndexToken, lendingTokensList[i]);
+        const lenderAPY = getLenderAPYPerLendingToken(primaryLendingPlatformV2, lendingTokensList[i]);
         totalLenderAPY = totalLenderAPY.plus(lenderAPY);
 
         updateLenderAPYHistory<T>(event, lendingTokensList[i], lenderAPY);
     }
 
-    updateLenderAPYHistory<T>(event, Address.zero(), totalLenderAPY.div(BigDecimal.fromString(lendingTokensList.length.toString())));
+    updateLenderAPYHistory<T>(
+        event,
+        Address.zero(),
+        totalLenderAPY.div(BigDecimal.fromString(lendingTokensList.length.toString()))
+    );
 }
 
-function updateLenderAPYHistory<T>(event : T, lendingTokenAddress: Address, lenderAPY: BigDecimal): void {
+function updateLenderAPYHistory<T>(event: T, lendingTokenAddress: Address, lenderAPY: BigDecimal): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
-    const id = lendingTokenAddress == Address.zero() ? txhash + "-" + logIndex : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
+    const id =
+        lendingTokenAddress == Address.zero()
+            ? txhash + "-" + logIndex
+            : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
 
     let entity = LenderAPYHistory.load(id);
     if (entity == null) {
@@ -703,24 +840,39 @@ function updateLenderAPYHistory<T>(event : T, lendingTokenAddress: Address, lend
 
 /************************************ Handle BorrowingAPYHistory ************************************/
 function handleBorrowingAPYHistory<T>(event: T): void {
-    const primaryIndexToken = PrimaryIndexToken.bind(event.address);
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        event instanceof LeveragedBorrow
+            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
+            : event.address
+    );
     let totalBorrowingAPY = BigDecimal.fromString("0");
 
-    const lendingTokensList = getLendingTokensList(primaryIndexToken);
+    const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
     for (let i = 0; i < lendingTokensList.length; i++) {
-        const borrowingAPY = getBorrowingAPYPerLendingToken(primaryIndexToken, lendingTokensList[i]);
+        const borrowingAPY = getBorrowingAPYPerLendingToken(primaryLendingPlatformV2, lendingTokensList[i]);
         totalBorrowingAPY = totalBorrowingAPY.plus(borrowingAPY);
 
         updateBorrowingAPYHistory<T>(event, lendingTokensList[i], borrowingAPY);
     }
 
-    updateBorrowingAPYHistory<T>(event, Address.zero(), totalBorrowingAPY.div(BigDecimal.fromString(lendingTokensList.length.toString())));
+    updateBorrowingAPYHistory<T>(
+        event,
+        Address.zero(),
+        totalBorrowingAPY.div(BigDecimal.fromString(lendingTokensList.length.toString()))
+    );
 }
 
-function updateBorrowingAPYHistory<T>(event : T, lendingTokenAddress: Address, borrowingAPY: BigDecimal): void {
+function updateBorrowingAPYHistory<T>(
+    event: T,
+    lendingTokenAddress: Address,
+    borrowingAPY: BigDecimal
+): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
-    const id = lendingTokenAddress == Address.zero() ? txhash + "-" + logIndex : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
+    const id =
+        lendingTokenAddress == Address.zero()
+            ? txhash + "-" + logIndex
+            : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
 
     let entity = BorrowingAPYHistory.load(id);
     if (entity == null) {
@@ -741,12 +893,19 @@ function updateBorrowingAPYHistory<T>(event : T, lendingTokenAddress: Address, b
 
 /************************************ Handle LenderAggregateCapitalDepositedHistory ************************************/
 function handleLenderAggregateCapitalDepositedHistory<T>(event: T): void {
-    const primaryIndexToken = PrimaryIndexToken.bind(event.address);
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        event instanceof LeveragedBorrow
+            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
+            : event.address
+    );
     let totalSupply = BigDecimal.fromString("0");
 
-    const lendingTokensList = getLendingTokensList(primaryIndexToken);
+    const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
     for (let i = 0; i < lendingTokensList.length; i++) {
-        const supplyAmount = getLenderAggregateCapitalDepositedPerLendingToken(primaryIndexToken, lendingTokensList[i]);
+        const supplyAmount = getLenderAggregateCapitalDepositedPerLendingToken(
+            primaryLendingPlatformV2,
+            lendingTokensList[i]
+        );
         totalSupply = totalSupply.plus(supplyAmount);
 
         updateLenderAggregateCapitalDepositedHistory<T>(event, lendingTokensList[i], supplyAmount);
@@ -755,10 +914,17 @@ function handleLenderAggregateCapitalDepositedHistory<T>(event: T): void {
     updateLenderAggregateCapitalDepositedHistory<T>(event, Address.zero(), totalSupply);
 }
 
-function updateLenderAggregateCapitalDepositedHistory<T>(event : T, lendingTokenAddress: Address, totalSupply: BigDecimal): void {
+function updateLenderAggregateCapitalDepositedHistory<T>(
+    event: T,
+    lendingTokenAddress: Address,
+    totalSupply: BigDecimal
+): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
-    const id = lendingTokenAddress == Address.zero() ? txhash + "-" + logIndex : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
+    const id =
+        lendingTokenAddress == Address.zero()
+            ? txhash + "-" + logIndex
+            : txhash + "-" + logIndex + "-" + lendingTokenAddress.toHex();
 
     let entity = LenderAggregateCapitalDepositedHistory.load(id);
     if (entity == null) {
@@ -773,8 +939,12 @@ function updateLenderAggregateCapitalDepositedHistory<T>(event : T, lendingToken
 }
 
 /************************************ Internal Functions ************************************/
-function getUsdOraclePrice(primaryIndexToken: PrimaryIndexToken, tokenAddr: Address, amount: BigInt): BigDecimal {
-    const priceOracle = PriceProviderAggregator.bind(primaryIndexToken.priceOracle());
+function getUsdOraclePrice(
+    primaryLendingPlatformV2: PrimaryLendingPlatformV2,
+    tokenAddr: Address,
+    amount: BigInt
+): BigDecimal {
+    const priceOracle = PriceProviderAggregator.bind(primaryLendingPlatformV2.priceOracle());
     const usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount);
     if (usdOraclePrice.reverted) {
         log.info("tokenAddr: {}, amount: {}", [tokenAddr.toHexString(), amount.toString()]);
@@ -784,64 +954,93 @@ function getUsdOraclePrice(primaryIndexToken: PrimaryIndexToken, tokenAddr: Addr
     return usdOraclePrice.value.toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
 }
 
-function getPrjTokensList(primaryIndexToken: PrimaryIndexToken): Array<Address> {
-    const prjTokensLength = primaryIndexToken.projectTokensLength();
+function getPrjTokensList(primaryLendingPlatformV2: PrimaryLendingPlatformV2): Array<Address> {
+    const prjTokensLength = primaryLendingPlatformV2.projectTokensLength();
     let prjTokensList = new Array<Address>();
     for (let i = 0; i < prjTokensLength.toI32(); i++) {
-        const prjTokenAddress = primaryIndexToken.projectTokens(BigInt.fromI32(i));
+        const prjTokenAddress = primaryLendingPlatformV2.projectTokens(BigInt.fromI32(i));
         prjTokensList.push(prjTokenAddress);
     }
     return prjTokensList;
 }
 
-function getLendingTokensList(primaryIndexToken: PrimaryIndexToken): Array<Address> {
-    const lendingTokensLength = primaryIndexToken.lendingTokensLength();
+function getLendingTokensList(primaryLendingPlatformV2: PrimaryLendingPlatformV2): Array<Address> {
+    const lendingTokensLength = primaryLendingPlatformV2.lendingTokensLength();
     let lendingTokensList = new Array<Address>();
     for (let i = 0; i < lendingTokensLength.toI32(); i++) {
-        const lendingTokenAddress = primaryIndexToken.lendingTokens(BigInt.fromI32(i));
+        const lendingTokenAddress = primaryLendingPlatformV2.lendingTokens(BigInt.fromI32(i));
         lendingTokensList.push(lendingTokenAddress);
     }
     return lendingTokensList;
 }
 
-function getLenderAPYPerLendingToken(primaryIndexToken: PrimaryIndexToken, lendingTokenAddress: Address): BigDecimal {
-    const bLendingTokenAddress = primaryIndexToken.lendingTokenInfo(lendingTokenAddress).getBLendingToken();
+function getLenderAPYPerLendingToken(
+    primaryLendingPlatformV2: PrimaryLendingPlatformV2,
+    lendingTokenAddress: Address
+): BigDecimal {
+    const bLendingTokenAddress = primaryLendingPlatformV2
+        .lendingTokenInfo(lendingTokenAddress)
+        .getBLendingToken();
     const bLendingToken = BLendingToken.bind(bLendingTokenAddress);
-    const supplyRatePerBlock = bLendingToken.supplyRatePerBlock().toBigDecimal().div(exponentToBigDecimal(SCALE_DECIMALS));
+    const supplyRatePerBlock = bLendingToken
+        .supplyRatePerBlock()
+        .toBigDecimal()
+        .div(exponentToBigDecimal(SCALE_DECIMALS));
     const supplyRatePerDay = supplyRatePerBlock.times(BigDecimal.fromString(BLOCKS_PER_DAY.toString()));
     const lenderAPY = pow(supplyRatePerDay.plus(BigDecimal.fromString("1")), DAY_PER_YEAR)
         .minus(BigDecimal.fromString("1"))
         .times(BigDecimal.fromString("100"));
-    
+
     return lenderAPY;
 }
 
-function getBorrowingAPYPerLendingToken(primaryIndexToken: PrimaryIndexToken, lendingTokenAddress: Address): BigDecimal {
-    const bLendingTokenAddress = primaryIndexToken.lendingTokenInfo(lendingTokenAddress).getBLendingToken();
+function getBorrowingAPYPerLendingToken(
+    primaryLendingPlatformV2: PrimaryLendingPlatformV2,
+    lendingTokenAddress: Address
+): BigDecimal {
+    const bLendingTokenAddress = primaryLendingPlatformV2
+        .lendingTokenInfo(lendingTokenAddress)
+        .getBLendingToken();
     const bLendingToken = BLendingToken.bind(bLendingTokenAddress);
-    const borrowRatePerBlock = bLendingToken.borrowRatePerBlock().toBigDecimal().div(exponentToBigDecimal(SCALE_DECIMALS));
+    const borrowRatePerBlock = bLendingToken
+        .borrowRatePerBlock()
+        .toBigDecimal()
+        .div(exponentToBigDecimal(SCALE_DECIMALS));
     const borrowRatePerDay = borrowRatePerBlock.times(BigDecimal.fromString(BLOCKS_PER_DAY.toString()));
     const borrowingAPY = pow(borrowRatePerDay.plus(BigDecimal.fromString("1")), DAY_PER_YEAR)
         .minus(BigDecimal.fromString("1"))
         .times(BigDecimal.fromString("100"));
-    
+
     return borrowingAPY;
 }
 
-function getLenderAggregateCapitalDepositedPerLendingToken(primaryIndexToken: PrimaryIndexToken, lendingTokenAddress: Address): BigDecimal {
-    const bLendingTokenAddress = primaryIndexToken.lendingTokenInfo(lendingTokenAddress).getBLendingToken();
+function getLenderAggregateCapitalDepositedPerLendingToken(
+    primaryLendingPlatformV2: PrimaryLendingPlatformV2,
+    lendingTokenAddress: Address
+): BigDecimal {
+    const bLendingTokenAddress = primaryLendingPlatformV2
+        .lendingTokenInfo(lendingTokenAddress)
+        .getBLendingToken();
     const bLendingToken = BLendingToken.bind(bLendingTokenAddress);
     const totalSupply = bLendingToken.totalSupply();
     const exchangeRateStored = bLendingToken.exchangeRateStored();
     const totalSupplyLendingToken = totalSupply.times(exchangeRateStored);
 
-    const usdOraclePrice = getUsdOraclePrice(primaryIndexToken, lendingTokenAddress, totalSupplyLendingToken)
-        .div(exponentToBigDecimal(SCALE_DECIMALS));
+    const usdOraclePrice = getUsdOraclePrice(
+        primaryLendingPlatformV2,
+        lendingTokenAddress,
+        totalSupplyLendingToken
+    ).div(exponentToBigDecimal(SCALE_DECIMALS));
 
     return usdOraclePrice;
 }
 
-function getOutstandingPerPair<T>(event: T, primaryIndexToken: PrimaryIndexToken, projectTokenAddress: Address, lendingTokenAddress: Address): BigInt {
+function getOutstandingPerPair<T>(
+    event: T,
+    primaryLendingPlatformV2: PrimaryLendingPlatformV2,
+    projectTokenAddress: Address,
+    lendingTokenAddress: Address
+): BigInt {
     let totalOutstanding = BigInt.zero();
     const id = projectTokenAddress.toHex() + "-" + lendingTokenAddress.toHex();
     const borrowedStateEntity = BorrowedState.load(id);
@@ -852,16 +1051,32 @@ function getOutstandingPerPair<T>(event: T, primaryIndexToken: PrimaryIndexToken
                 const borrowerEntity = Borrower.load(borrowerList[i]);
                 if (borrowerEntity != null) {
                     const borrower = Address.fromBytes(borrowerEntity.address);
-                    const positionLoan = primaryIndexToken.getPosition(borrower, projectTokenAddress, lendingTokenAddress);
-                    const outstandingAmount = primaryIndexToken.totalOutstanding(borrower, projectTokenAddress, lendingTokenAddress);
+                    const positionLoan = primaryLendingPlatformV2.getPosition(
+                        borrower,
+                        projectTokenAddress,
+                        lendingTokenAddress
+                    );
+                    const outstandingAmount = primaryLendingPlatformV2.totalOutstanding(
+                        borrower,
+                        projectTokenAddress,
+                        lendingTokenAddress
+                    );
                     const depositedAmount = positionLoan.getDepositedProjectTokenAmount();
                     const borrowedAmount = positionLoan.getLoanBody();
 
-                    updateBorrower(event, borrower, projectTokenAddress, lendingTokenAddress, depositedAmount.toBigDecimal(), borrowedAmount.toBigDecimal(), outstandingAmount.toBigDecimal());
+                    updateBorrower(
+                        event,
+                        borrower,
+                        projectTokenAddress,
+                        lendingTokenAddress,
+                        depositedAmount.toBigDecimal(),
+                        borrowedAmount.toBigDecimal(),
+                        outstandingAmount.toBigDecimal()
+                    );
                     totalOutstanding = totalOutstanding.plus(outstandingAmount);
                 }
             }
         }
-    } 
+    }
     return totalOutstanding;
 }

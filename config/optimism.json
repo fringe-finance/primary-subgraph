@@ -1,5 +1,5 @@
 {
-    "network": "mainnet",
+    "network": "optimism",
     "plp_address": "",
     "plp_startBlock": 0,
     "plp_leverage_address": "",
