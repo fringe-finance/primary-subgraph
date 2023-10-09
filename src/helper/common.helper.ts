@@ -1,5 +1,5 @@
 // For each division by 10, add one to exponent to truncate one significant figure
-import { BigDecimal, BigInt, Bytes, Address, ByteArray } from "@graphprotocol/graph-ts";
+import { BigDecimal } from "@graphprotocol/graph-ts";
 
 export function exponentToBigDecimal(decimals: i32): BigDecimal {
     let bd = BigDecimal.fromString("1");

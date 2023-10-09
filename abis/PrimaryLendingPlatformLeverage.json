@@ -1,807 +1,854 @@
 [
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "version",
-          "type": "uint8"
-        }
-      ],
-      "name": "Initialized",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "lendingToken",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "notionalExposure",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "lendingAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "margin",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "addingAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "totalDepositedAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amountReceive",
-          "type": "uint256"
-        }
-      ],
-      "name": "LeveragedBorrow",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "previousAdminRole",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "newAdminRole",
-          "type": "bytes32"
-        }
-      ],
-      "name": "RoleAdminChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        }
-      ],
-      "name": "RoleGranted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        }
-      ],
-      "name": "RoleRevoked",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "exchangeAggregator",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "registryAggregator",
-          "type": "address"
-        }
-      ],
-      "name": "SetAugustusParaswap",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newPrimaryLendingPlatform",
-          "type": "address"
-        }
-      ],
-      "name": "SetPrimaryLendingPlatform",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "DEFAULT_ADMIN_ROLE",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MODERATOR_ROLE",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "marginCollateralCount",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateAddingAmount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "addingAmount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "expAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "margin",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "borrowAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lvrNumerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lvrDenominator",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateHF",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "hfNumerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "hfDenominator",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "lendingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "notionalValue",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateLendingTokenCount",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "lendingTokenCount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "lendingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "safetyMarginNumerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "safetyMarginDenominator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "expAmount",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateMargin",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "marginAmount",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "lendingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "margin",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "exp",
-          "type": "uint256"
-        }
-      ],
-      "name": "calculateSafetyMargin",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "safetyMarginNumerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "safetyMarginDenominator",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        }
-      ],
-      "name": "deleteLeveragePosition",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "exchangeAggregator",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "borrower",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        }
-      ],
-      "name": "getLeverageType",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getRoleAdmin",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        }
-      ],
-      "name": "getTokenPrice",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "grantRole",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "hasRole",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "pit",
-          "type": "address"
-        }
-      ],
-      "name": "initialize",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "isLeveragePosition",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "margin",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "exp",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lvrNumerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lvrDenominator",
-          "type": "uint256"
-        }
-      ],
-      "name": "isValidCollateralization",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "isValid",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "lendingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "notionalExposure",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "marginCollateralAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bytes",
-          "name": "buyCalldata",
-          "type": "bytes"
-        },
-        {
-          "internalType": "uint8",
-          "name": "leverageType",
-          "type": "uint8"
-        }
-      ],
-      "name": "leveragedBorrow",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "projectToken",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "lendingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "notionalExposure",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "marginCollateralAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bytes",
-          "name": "buyCalldata",
-          "type": "bytes"
-        },
-        {
-          "internalType": "address",
-          "name": "borrower",
-          "type": "address"
-        },
-        {
-          "internalType": "uint8",
-          "name": "leverageType",
-          "type": "uint8"
-        }
-      ],
-      "name": "leveragedBorrowFromRelatedContract",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "primaryLendingPlatform",
-      "outputs": [
-        {
-          "internalType": "contract IPrimaryLendingPlatform",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "registryAggregator",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "renounceRole",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "revokeRole",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "exchangeAggregatorAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "registryAggregatorAddress",
-          "type": "address"
-        }
-      ],
-      "name": "setExchangeAggregator",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newPrimaryLendingPlatform",
-          "type": "address"
-        }
-      ],
-      "name": "setPrimaryLendingPlatformAddress",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes4",
-          "name": "interfaceId",
-          "type": "bytes4"
-        }
-      ],
-      "name": "supportsInterface",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "typeOfLeveragePosition",
-      "outputs": [
-        {
-          "internalType": "enum PrimaryLendingPlatformLeverageCore.LeverageType",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ]
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "positionIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lendingTokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ClosePosition",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "notionalExposure",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "lendingAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "margin",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "addingAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalDepositedAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountReceive",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum PrimaryLendingPlatformLeverageV3Core.LeverageType",
+        "name": "leverageType",
+        "type": "uint8"
+      }
+    ],
+    "name": "LeveragedBorrow",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "previousAdminRole",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "newAdminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RoleAdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleGranted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "exchangeAggregator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "registryAggregator",
+        "type": "address"
+      }
+    ],
+    "name": "SetExchangeAggregator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newPrimaryLendingPlatform",
+        "type": "address"
+      }
+    ],
+    "name": "SetPrimaryLendingPlatform",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newPrimaryLendingPlatformAtomic",
+        "type": "address"
+      }
+    ],
+    "name": "SetPrimaryLendingPlatformAtomic",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MODERATOR_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "marginCollateralCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateAddingAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "addingAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "expAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "margin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "borrowAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lvrNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lvrDenominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateHF",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "hfNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "hfDenominator",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "notionalValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateLendingTokenCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lendingTokenCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginDenominator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateMargin",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "marginAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "margin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exp",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateSafetyMargin",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginDenominator",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "positionIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "buyCalldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "closePositionByLongAsset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "positionIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lendingTokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "closePositionByShortAsset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "exchangeAggregator",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRoleAdmin",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getTokenPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "grantRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "hasRole",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pit",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "pitAtomicRepayment",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "margin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lvrNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lvrDenominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "isValidCollateralization",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isValid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "notionalExposure",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "marginCollateralAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "buyCalldata",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint8",
+        "name": "leverageType",
+        "type": "uint8"
+      }
+    ],
+    "name": "leveragedBorrow",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "notionalExposure",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "marginCollateralAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "buyCalldata",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "leverageType",
+        "type": "uint8"
+      }
+    ],
+    "name": "leveragedBorrowFromRelatedContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "primaryLendingPlatform",
+    "outputs": [
+      {
+        "internalType": "contract IPrimaryLendingPlatformV3",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "primaryLendingPlatformAtomic",
+    "outputs": [
+      {
+        "internalType": "contract IPrimaryLendingPlatformAtomicRepaymentV3",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registryAggregator",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "renounceRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "exchangeAggregatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "registryAggregatorAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setExchangeAggregator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newPrimaryLendingPlatform",
+        "type": "address"
+      }
+    ],
+    "name": "setPrimaryLendingPlatformAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newPrimaryLendingPlatformAtomic",
+        "type": "address"
+      }
+    ],
+    "name": "setPrimaryLendingPlatformAtomicAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

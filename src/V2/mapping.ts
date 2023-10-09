@@ -1,8 +1,8 @@
 import {
     LeveragedBorrow,
     PrimaryLendingPlatformLeverage
-} from "./../generated/PrimaryLendingPlatformLeverage/PrimaryLendingPlatformLeverage";
-import { UniswapV2Pair } from "./../generated/PrimaryLendingPlatformModerator/UniswapV2Pair";
+} from "../../generated/PrimaryLendingPlatformLeverage/PrimaryLendingPlatformLeverage";
+import { UniswapV2Pair } from "../../generated/PrimaryLendingPlatformModerator/UniswapV2Pair";
 import {
     LenderAPYHistory,
     BorrowingAPYHistory,
@@ -11,9 +11,9 @@ import {
     Borrower,
     ERC20Token,
     LeveragedBorrowLog
-} from "./../generated/schema";
-import { BLendingToken } from "./../generated/PrimaryLendingPlatformV2/BLendingToken";
-import { PriceProviderAggregator } from "./../generated/PrimaryLendingPlatformV2/PriceProviderAggregator";
+} from "../../generated/schema";
+import { BLendingToken } from "../../generated/PrimaryLendingPlatformV2/BLendingToken";
+import { PriceProviderAggregator } from "../../generated/PrimaryLendingPlatformV2/PriceProviderAggregator";
 import {
     Borrow,
     Deposit,
@@ -26,7 +26,7 @@ import {
     RoleRevoked,
     Supply,
     Withdraw
-} from "../generated/PrimaryLendingPlatformV2/PrimaryLendingPlatformV2";
+} from "../../generated/PrimaryLendingPlatformV2/PrimaryLendingPlatformV2";
 import {
     AddPrjToken,
     AddLendingToken,
@@ -37,9 +37,9 @@ import {
     SetPausedLendingToken,
     SetBorrowLimitPerCollateralAsset,
     SetBorrowLimitPerLendingAsset
-} from "../generated/PrimaryLendingPlatformModerator/PrimaryLendingPlatformModerator";
+} from "../../generated/PrimaryLendingPlatformModerator/PrimaryLendingPlatformModerator";
 
-import { ERC20 } from "../generated/PrimaryLendingPlatformV2/ERC20";
+import { ERC20 } from "../../generated/PrimaryLendingPlatformV2/ERC20";
 import {
     BorrowLog,
     CollateralDepositedHistory,
@@ -49,12 +49,12 @@ import {
     OutstandingHistory,
     CollateralVSLoanRatioHistory,
     TotalState
-} from "../generated/schema";
-import { BORROWING_APY, LENDER_APY, TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "./constants/chartsType";
-import { DEPOSIT, BORROW, REPAY, WITHDRAW, LEVERAGE_BORROW } from "./constants/eventsType";
-import { USD_DECIMALS, SCALE_DECIMALS } from "./constants/decimals";
-import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "./constants/configs";
-import { exponentToBigDecimal, pow } from "./helpers";
+} from "../../generated/schema";
+import { BORROWING_APY, LENDER_APY, TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "../constants/chartsType";
+import { DEPOSIT, BORROW, REPAY, WITHDRAW, LEVERAGE_BORROW } from "../constants/eventsType";
+import { USD_DECIMALS, SCALE_DECIMALS } from "../constants/decimals";
+import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "../constants/configs";
+import { exponentToBigDecimal, pow } from "../helper/common.helper";
 import { Address, BigDecimal, BigInt, store, dataSource, log } from "@graphprotocol/graph-ts";
 
 export function handleAddPrjToken(event: AddPrjToken): void {
