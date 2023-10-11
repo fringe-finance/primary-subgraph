@@ -1,4 +1,4 @@
-[
+  [
     {
       "anonymous": false,
       "inputs": [
@@ -7,18 +7,6 @@
           "internalType": "address",
           "name": "lendingToken",
           "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "symbol",
-          "type": "string"
         }
       ],
       "name": "AddLendingToken",
@@ -32,18 +20,6 @@
           "internalType": "address",
           "name": "tokenPrj",
           "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "symbol",
-          "type": "string"
         }
       ],
       "name": "AddPrjToken",
@@ -72,7 +48,7 @@
           "type": "address"
         }
       ],
-      "name": "GrandModerator",
+      "name": "GrantModerator",
       "type": "event"
     },
     {
@@ -470,7 +446,7 @@
           "type": "address"
         }
       ],
-      "name": "grandModerator",
+      "name": "grantModerator",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

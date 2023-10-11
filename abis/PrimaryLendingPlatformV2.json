@@ -1,4 +1,4 @@
-[
+  [
     {
       "anonymous": false,
       "inputs": [
@@ -1733,7 +1733,7 @@
           "type": "address"
         }
       ],
-      "name": "setPrimaryLendingPlatformModeratorModerator",
+      "name": "setPrimaryLendingPlatformModerator",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

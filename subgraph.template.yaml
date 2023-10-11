@@ -116,11 +116,11 @@ dataSources:
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
       eventHandlers:
-        - event: AddPrjToken(indexed address,indexed string,indexed string)
+        - event: AddPrjToken(indexed address)
           handler: handleAddPrjToken
         - event: RemoveProjectToken(indexed address)
           handler: handleRemoveProjectToken
-        - event: AddLendingToken(indexed address,indexed string,indexed string)
+        - event: AddLendingToken(indexed address)
           handler: handleAddLendingToken
         - event: RemoveLendingToken(indexed address)
           handler: handleRemoveLendingToken
