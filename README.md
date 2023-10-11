@@ -145,14 +145,19 @@ yarn prepare:<network_name>
 yarn prepare:mainnet
 ```
 
+**Step 9:** Run codegen command:
+```
+graph codegen
+```
 
-**Step 9:** Build Subgraph:
+
+**Step 10:** Build Subgraph:
 ```
 graph build
 ```
 
 
-**Step 10:** Deploy Subgraph:
+**Step 11:** Deploy Subgraph:
 ```
 graph deploy --product hosted-service <name_used_for_deployments>
 ```
