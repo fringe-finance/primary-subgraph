@@ -166,4 +166,4 @@ graph deploy --product hosted-service <name_used_for_deployments>
 
 **Example:** Create file config mainnet.json that includes content:
 
-*****Note:** Re-deploy new Subgraph with another network you want to deploy by looping steps 5 to step 10
+*****Note:** Re-deploy new Subgraph with another network you want to deploy by looping steps 5 to step 11
