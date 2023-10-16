@@ -1,80 +1,53 @@
-# SubGraph Deployment Guideline
+# SubGraph Deployment Guideline by Subgraph Studio
 
 ## Description
-Deploy the subgraph with [Subgraph Hosted Service](https://thegraph.com/hosted-service/)
 
-> **Note:**
-> Please note, the hosted service will begin sunsetting in 2023. Developers are encouraged to upgrade their subgraphs to [Subgraph Studio](https://thegraph.com/studio/) as more networks are supported. Details are in [here](https://thegraph.com/blog/sunsetting-hosted-service/).
+Deploy the subgraph with [Subgraph Studio](https://thegraph.com/studio/)
 
-## Quick start
+## Create a Subgraph in Subgraph Studio
 
-**Step 1:** Access the **Dashboard** page: [Hosted Service](https://thegraph.com/hosted-service/dashboard) and sign in with Github account:
+**Step 1:** Access the **Dashboard** page [Subgraph Studio](https://thegraph.com/studio/) and connect to the wallet by click the `Connect Wallet` button.
 
 <p align="center">
-  <img alt="Subgraph Sign In" src="./img/sub-sign-in.png">
+  <img alt="Subgraph Connect Wallet" src="./img/connect-wallet.png">
 </p>
 
-
-**Step 2:** Store the `ACCESS_TOKEN`.  
-After signing in with Github account, copy and store the access token displayed on the dashboard:
+**Step 2:** Create a new subgraph by click to the `Create a Subgraph` button.
 
 <p align="center">
-  <img alt="Subgraph Access Token" src="./img/sub-access-token.png">
+  <img alt="Subgraph Create Subgraph" src="./img/create-subgraph.png">
 </p>
 
+**Step 3:** Set name of the subgraph and choose the network to be indexed by set `SUBGRAPH NAME` and choose `INDEXED BLOCKCHAIN`. Then click `Create Subgraph` to create new Subgraph.
 
-**Step 3:** Pull code from Github.
+- **SUBGRAPH NAME** - The name of the subgraph is created under, this will also define the `SUBGRAPH SLUG` name used for deployment and GraphQL endpoint. This field cannot be changed later.
 
+- **INDEXED BLOCKCHAIN** - The blockchain network that your subgraph will be indexed.
 
-**Step 4:** Install dependencies package:  
+<p align="center">
+  <img alt="Subgraph Create Subgraph" src="./img/set-name-network.png">
+</p>
+
+**Step 4:** Store the `DEPLOY_KEY` and `SUBGRAPH_SLUG`.  
+After connecting to the wallet and create new subgraph, copy and store the deploy key and subgraph slug which is displayed on the dashboard:
+
+<p align="center">
+  <img alt="Subgraph Access Token" src="./img/deploy-key.png">
+</p>
+
+---
+
+## Initialize Subgraph
+
+**Step 1:** Pull code from Github.
+
+**Step 2:** Install dependencies package:
+
 ```
-yarn
-```
-or 
-```
-npm install
+yarn or npm install
 ```
 
-
-**Step 5:** Create subgraph on **The Graph Explorer:**  
-
-Back to **dashboard** page, click on the **Add Subgraph** button and fill in the information below as appropriate:
-
-* **Subgraph Name** - Together with the account name that the subgraph is created under, this will also define the account-name/subgraph-name-style name used for deployments and GraphQL endpoints. This field cannot be changed later.
-
-* **Account** - The account that the subgraph is created under. This can be the account of an individual or organization. Subgraphs cannot be moved between accounts later.
-
-* **Subtitle** - Text that will appear in subgraph cards.
-
-* **Hide** - Switching this on hides the subgraph in the Graph Explorer.
-
-*(These are the four mandatory parameters we have to pay attention to)*
-
-**Example:**
-
-* **Subgraph Name:** PLP-Mainnet
-
-* **Account:** Fringe
-
-* **Subtitle:** PLP Mainnet
-
-* **Hide:** true
-
-From the above information, we will get **name_used_for_deployments** is `fringe/plp-mainnet`
-
-After saving the new subgraph, you are shown a screen with help on how to install the Graph CLI, how to generate the scaffolding for a new subgraph, and how to deploy your subgraph.
-
-
-**Step 6:** Setup **ACCESS_TOKEN**:
-
-Back to **local project** and run this command with **ACCESS_TOKEN** taken above:
-```
-graph auth --product hosted-service <ACCESS_TOKEN>
-```
-This will store the access token on your computer. You only need to do this once.
-
-
-**Step 7:** Setup file config with the network you want to deploy:
+**Step 3:** Setup file config with the network you want to deploy:
 
 At the folder `./config`, create file `config.json` according to the following name rule:
 
@@ -84,27 +57,27 @@ The **network_name** takes the list below:
 
 **Mainnet:**
 
-* `mainnet` (Ethereum)
+- `mainnet` (Ethereum)
 
-* `matic`
+- `matic`
 
-* `optimism`
+- `optimism`
 
-* `arbitrum-one`
+- `arbitrum-one`
 
-* `zksync-era`
+- `zksync-era`
 
 **Testnet:**
 
-* `goerli`
+- `goerli`
 
-* `mumbai`
+- `mumbai`
 
-* `optimism-goerli`
+- `optimism-goerli`
 
-* `arbitrum-goerli`
+- `arbitrum-goerli`
 
-* `zksync2-testnet`
+- `zksync2-testnet`
 
 Then, set the following in your config file:
 
@@ -134,36 +107,42 @@ Then, set the following in your config file:
 }
 ```
 
+**Step 4:** Apply file config by running command:
 
-**Step 8:** Apply file config by running command:
 ```
 yarn prepare:<network_name>
 ```
 
 **Example:** Apply file config of `mainnet` network:
+
 ```
 yarn prepare:mainnet
 ```
 
-**Step 9:** Run codegen command:
+---
+
+## Deploy to the Subgraph Studio
+
+**Step 1:** Build the Subgraph:
+
 ```
 graph codegen
-```
-
-
-**Step 10:** Build Subgraph:
-```
 graph build
 ```
 
+**Step 2:** Authenticate and deploy your subgraph. The deploy key can be found on the Subgraph page in Subgraph Studio, or `<DEPLOY_KEY>` and `<SUBGRAPH_SLUG>` are stored at **Step 4** in the `Create a Subgraph in Subgraph Studio` part.
 
-**Step 11:** Deploy Subgraph:
+Run these CLI commands to deploy subgraph:
+
 ```
-graph deploy --product hosted-service <name_used_for_deployments>
+graph auth --studio <DEPLOY_KEY>
+graph deploy --studio <SUBGRAPH_SLUG>
 ```
 
-**name_used_for_deployments** taken from step 5
+You will be asked for a version label. That said, you are able to choose any string as version such as: v1, version1, etc. However, it's strongly recommended to use semver for versioning like `0.0.1`. 
 
-**Example:** Create file config mainnet.json that includes content:
+**Note:**
 
-*****Note:** Re-deploy new Subgraph with another network you want to deploy by looping steps 5 to step 11
+- Re-deploy new Subgraph with another network you should repeat the steps from the step 3 of the `Initialize Subgraph` part to the end.
+
+- Re-deploy after testing completed at the same network you should repeat the steps in `Deploy to the Subgraph Studio` part. Have to name the version differently from the previous deployed versions.
