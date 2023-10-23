@@ -1051,17 +1051,17 @@ function getOutstandingPerPair<T>(
                 const borrowerEntity = Borrower.load(borrowerList[i]);
                 if (borrowerEntity != null) {
                     const borrower = Address.fromBytes(borrowerEntity.address);
-                    const positionLoan = primaryLendingPlatformV2.getPosition(
-                        borrower,
-                        projectTokenAddress,
-                        lendingTokenAddress
-                    );
                     const outstandingAmount = primaryLendingPlatformV2.totalOutstanding(
                         borrower,
                         projectTokenAddress,
                         lendingTokenAddress
                     );
-                    const depositedAmount = positionLoan.getDepositedProjectTokenAmount();
+                    const depositedAmount = primaryLendingPlatformV2.getDepositedAmount(projectTokenAddress, borrower);
+                    const positionLoan = primaryLendingPlatformV2.borrowPosition(
+                        borrower,
+                        projectTokenAddress,
+                        lendingTokenAddress
+                    );
                     const borrowedAmount = positionLoan.getLoanBody();
 
                     updateBorrower(
