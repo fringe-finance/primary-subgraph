@@ -1,3 +1,11 @@
+type ERC20Token @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  address: Bytes!
+  linksNumber: BigDecimal
+}
+
 type ProjectToken @entity {
   id: ID!
   name: String!
@@ -9,10 +17,8 @@ type ProjectToken @entity {
   depositedAmount: BigDecimal
   lvr: BigDecimal
   pitAmount: BigDecimal
-  borrowedAmount: BigDecimal
-  outstandingAmount: BigDecimal
-  borrowingLevelAmount: BigDecimal
-  currentBorrowingLevel: BigDecimal
+  depositingLevelAmount: BigDecimal
+  currentDepositingLevel: BigDecimal
   underlyingTokens: [ERC20Token!]
 }
 
@@ -27,23 +33,13 @@ type LendingToken @entity {
   underlyingTokens: [ERC20Token!]
 }
 
-type ERC20Token @entity {
-  id: ID!
-  name: String!
-  symbol: String!
-  address: Bytes!
-  linksNumber: BigDecimal
-}
-
 type BorrowLog @entity(immutable: true) {
   id: ID!
   amount: BigDecimal!
   asset: String!
-  prjToken: String!
   type: String!
   date: BigInt!
   userAddress: Bytes!
-  prjTokenAddress: Bytes!
 }
 
 type LeveragedBorrowLog @entity(immutable: true) {
@@ -62,6 +58,80 @@ type LeveragedBorrowLog @entity(immutable: true) {
   prjTokenAddress: Bytes!
   lendingTokenAddress: Bytes!
 }
+
+type Borrower @entity {
+  id: ID!
+  address: Bytes!
+  lendingTokenAddress: Bytes!
+  updatedAt: BigInt!
+  borrowedAmount: BigDecimal
+  outstandingAmount: BigDecimal
+  depositedAmount: BigDecimal
+}
+
+type BorrowedState @entity {
+  id: ID!
+  lendingTokenAddress: Bytes
+  updatedAt: BigInt!
+  borrowerAddresses: [Borrower!]
+}
+
+type TotalState @entity {
+  id: ID!
+  type: String!
+  amount: BigDecimal!
+  lendingTokenAddress: Bytes
+  updatedAt: BigInt!
+}
+
+# Update for leverage borrow position logic 
+type LeveragePositionData @entity {
+  # transactionHash - logIndex
+  id: ID!
+  borrowerAddress: PositionByUser! 
+  longAsset: Bytes!
+  shortAsset: Bytes!
+  longCount: BigDecimal!
+  shortCount: BigDecimal!
+  leverageType: Int!
+  projectTokenRefId: PositionByProjectToken!
+  lendingTokenRefId: PositionByLendingToken!
+}
+
+type LongAssetCountState @entity {
+  # user - projectToken
+  id: ID!
+  currentTotalLongAssetCount: BigDecimal!
+  maxTotalLongAssetCount: BigDecimal!
+}
+
+type ShortAssetCountState @entity {
+  # user - lendingToken
+  id: ID!
+  closeShortAmount: BigDecimal!
+  currentShortAssetCount: BigDecimal!
+  maxTotalShortAssetCount: BigDecimal!
+}
+
+type PositionByProjectToken @entity(immutable: true) {
+  # user - projectToken
+  id: ID!
+  positions: [LeveragePositionData!]! @derivedFrom(field: "projectTokenRefId")
+} 
+
+type PositionByLendingToken @entity(immutable: true) {
+  # user - lendingToken
+  id: ID!
+  positions: [LeveragePositionData!]! @derivedFrom(field: "lendingTokenRefId")
+} 
+
+type PositionByUser @entity(immutable: true) { 
+  # user
+  id: ID!
+  positions: [LeveragePositionData!]! @derivedFrom(field: "borrowerAddress")
+}
+
+# End of update
 
 type CollateralDepositedHistory @entity(immutable: true) {
   id: ID!
@@ -84,12 +154,12 @@ type OutstandingHistory @entity(immutable: true) {
   date: BigInt!
 }
 
-type CollateralVSLoanRatioHistory @entity(immutable: true) {
-  id: ID!
-  amount: BigDecimal!
-  lendingTokenAddress: Bytes
-  date: BigInt!
-}
+# type CollateralVSLoanRatioHistory @entity(immutable: true) {
+#   id: ID!
+#   amount: BigDecimal!
+#   lendingTokenAddress: Bytes
+#   date: BigInt!
+# }
 
 type LenderAPYHistory @entity(immutable: true) {
   id: ID!
@@ -110,31 +180,4 @@ type LenderAggregateCapitalDepositedHistory @entity(immutable: true) {
   amount: BigDecimal!
   lendingTokenAddress: Bytes
   date: BigInt!
-}
-
-type TotalState @entity {
-  id: ID!
-  type: String!
-  amount: BigDecimal!
-  lendingTokenAddress: Bytes
-  updatedAt: BigInt!
-}
-
-type BorrowedState @entity {
-  id: ID!
-  prjTokenAddress: Bytes!
-  lendingTokenAddress: Bytes
-  updatedAt: BigInt!
-  borrowerAddresses: [Borrower!]
-}
-
-type Borrower @entity {
-  id: ID!
-  address: Bytes!
-  prjTokenAddress: Bytes!
-  lendingTokenAddress: Bytes!
-  updatedAt: BigInt!
-  borrowedAmount: BigDecimal
-  outstandingAmount: BigDecimal
-  depositedAmount: BigDecimal
 }

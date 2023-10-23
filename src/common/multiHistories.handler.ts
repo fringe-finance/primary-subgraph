@@ -1,11 +1,16 @@
-import { Address, BigDecimal } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, Entity } from "@graphprotocol/graph-ts";
 
 import {
     LeveragedBorrow,
     PrimaryLendingPlatformLeverage
 } from "../../generated/PrimaryLendingPlatformLeverage/PrimaryLendingPlatformLeverage";
 import { PrimaryLendingPlatformV3 } from "../../generated/PrimaryLendingPlatformV3/PrimaryLendingPlatformV3";
-import { CollateralDepositedHistory, PITTokenHistory, OutstandingHistory } from "../../generated/schema";
+import {
+    CollateralDepositedHistory,
+    PITTokenHistory,
+    OutstandingHistory,
+    ProjectToken
+} from "../../generated/schema";
 
 import { TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "../constants/chartsType";
 
@@ -15,6 +20,8 @@ import { getUsdOraclePrice } from "../utils/priceOracle.util";
 
 import { updateTotalState } from "./updateTotalState.handler";
 import { IEvent } from "../interface/event.interface";
+import { ERC20 } from "../../generated/PrimaryLendingPlatformV3/ERC20";
+import { exponentToBigDecimal } from "../helper/common.helper";
 
 export function handleMultiHistories<T extends IEvent>(event: T): void {
     const totalStateUpdated = getUpdatedState<T>(event);
@@ -79,8 +86,38 @@ function getUpdatedState<T extends IEvent>(event: T): Array<BigDecimal> {
             .times(BigDecimal.fromString(lvr.numerator.toString()))
             .div(BigDecimal.fromString(lvr.denominator.toString()));
         totalPITAmount = totalPITAmount.plus(pitAmount);
+
+        const projectToken = ERC20.bind(projectTokens[i]);
+        const depositedAmount = totalDepositedPerToken
+            .toBigDecimal()
+            .div(exponentToBigDecimal(projectToken.decimals()));
+
+        updateProjectTokenState(event, projectTokens[i], depositedAmount, pitAmount);
     }
     return [usdAmount, totalPITAmount];
+}
+
+function updateProjectTokenState<T extends IEvent>(
+    event: T,
+    projectTokenAddress: Address,
+    depositedAmount: BigDecimal,
+    pitAmount: BigDecimal
+): void {
+    const projectTokenId = projectTokenAddress.toHex();
+    const projectToken = ProjectToken.load(projectTokenId);
+    if (!projectToken) return;
+
+    projectToken.depositedAmount = depositedAmount;
+    projectToken.pitAmount = pitAmount;
+    projectToken.updatedAt = event.block.timestamp;
+
+    const depositLimitAmount = projectToken.depositingLevelAmount;
+    if (depositLimitAmount)
+        projectToken.currentDepositingLevel = depositLimitAmount.notEqual(BigDecimal.fromString("0"))
+            ? depositedAmount.div(depositLimitAmount).times(BigDecimal.fromString("100"))
+            : BigDecimal.fromString("0");
+
+    projectToken.save();
 }
 
 function updateCollateralDepositedHistory<T extends IEvent>(

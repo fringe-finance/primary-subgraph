@@ -1,4 +1,6 @@
-import { BorrowLog } from "../generated/schema";
+import { Address, BigDecimal, Bytes } from "@graphprotocol/graph-ts";
+
+import { BorrowLog, LeveragePositionData, ShortAssetCountState } from "../generated/schema";
 import {
     Borrow,
     Deposit,
@@ -16,6 +18,13 @@ import { exponentToBigDecimal } from "./helper/common.helper";
 import { handleMultiHistories } from "./common/multiHistories.handler";
 import { handleAPYHistories } from "./common/apyHistory.handler";
 import { handleBorrowedState } from "./common/borrowState.handler";
+import {
+    addDepositedLongAsset,
+    addShortAsset,
+    isNeedToUpdatePositionData,
+    reduceDepositedLongAsset,
+    reduceShortAsset
+} from "./common/leveragePosition.handler";
 
 import { IEvent } from "./interface/event.interface";
 
@@ -26,12 +35,18 @@ export function handleDeposit(event: Deposit): void {
     handleBorrowLog<Deposit>(event);
     handleMultiHistories<Deposit>(event);
     handleAPYHistories<Deposit>(event);
+
+    if (isNeedToUpdatePositionData(event.params.beneficiary, event.params.tokenPrj, Address.zero()))
+        addDepositedLongAsset(event.params.beneficiary, event.params.tokenPrj, event.address);
 }
 
 export function handleWithdraw(event: Withdraw): void {
     handleBorrowLog<Withdraw>(event);
     handleMultiHistories<Withdraw>(event);
     handleAPYHistories<Withdraw>(event);
+
+    if (isNeedToUpdatePositionData(event.params.beneficiary, event.params.tokenPrj, Address.zero()))
+        reduceDepositedLongAsset(event.params.beneficiary, event.params.tokenPrj, true, event.address);
 }
 
 export function handleBorrow(event: Borrow): void {
@@ -39,13 +54,21 @@ export function handleBorrow(event: Borrow): void {
     handleBorrowedState(event);
     handleMultiHistories<Borrow>(event);
     handleAPYHistories<Borrow>(event);
+
+    if (isNeedToUpdatePositionData(event.params.who, Address.zero(), event.params.borrowToken))
+        addShortAsset(event.params.who, event.params.borrowToken, event.address);
 }
 
 export function handleRepayBorrow(event: RepayBorrow): void {
+    if (event.params.positionId.notEqual(Bytes.empty())) updateLeveragePositionData(event);
+
     handleBorrowLog<RepayBorrow>(event);
     handleBorrowedState(event);
     handleMultiHistories<RepayBorrow>(event);
     handleAPYHistories<RepayBorrow>(event);
+
+    if (isNeedToUpdatePositionData(event.params.who, Address.zero(), event.params.borrowToken))
+        reduceShortAsset(event.params.who, event.params.borrowToken, event.address);
 }
 
 export function handleSupply(event: Supply): void {
@@ -95,4 +118,24 @@ export function handleBorrowLog<T extends IEvent>(event: T): void {
         entity.userAddress = event.params.who;
     }
     entity.save();
+}
+
+function updateLeveragePositionData(event: RepayBorrow): void {
+    const leveragePosition = LeveragePositionData.load(event.params.positionId.toHex());
+    if (!leveragePosition) return;
+    if (leveragePosition.shortAsset.notEqual(event.params.borrowToken)) return;
+
+    const shortAssetCountId = event.params.who.toHex() + "-" + event.params.borrowToken.toHex();
+    const shortAssetCountState = ShortAssetCountState.load(shortAssetCountId);
+    if (!shortAssetCountState) return;
+
+    shortAssetCountState.currentShortAssetCount = shortAssetCountState.currentShortAssetCount.minus(
+        leveragePosition.shortCount
+    );
+    shortAssetCountState.maxTotalShortAssetCount = shortAssetCountState.currentShortAssetCount;
+    shortAssetCountState.closeShortAmount = leveragePosition.shortCount;
+    shortAssetCountState.save();
+
+    leveragePosition.shortCount = BigDecimal.fromString("0");
+    leveragePosition.save();
 }

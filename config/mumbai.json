@@ -1,9 +1,9 @@
 {
     "network": "mumbai",
-    "plp_address": "",
-    "plp_startBlock": 0,
-    "plp_leverage_address": "",
-    "plp_leverage_startBlock": 0,
-    "plp_moderator_address": "",
-    "plp_moderator_startBlock": 0
+    "plp_address": "0x5e17c7e4D135e332b92FFb4586d0729563F6C969",
+    "plp_startBlock": 41298829,
+    "plp_leverage_address": "0x87849621524c418BD1B438e842C7a86cBdED0Cd9",
+    "plp_leverage_startBlock": 41298860,
+    "plp_moderator_address": "0x73057e20BB2fcAB06d7E55a9398519156Fb7877e",
+    "plp_moderator_startBlock": 41298836
 }

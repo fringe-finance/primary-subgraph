@@ -1,5 +1,5 @@
 {
-    "network": "goerli",
+    "network": "zkSync2-testnet",
     "plp_address": "",
     "plp_startBlock": 0,
     "plp_leverage_address": "",

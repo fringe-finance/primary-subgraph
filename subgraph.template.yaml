@@ -3,10 +3,10 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: PrimaryLendingPlatformV2
+    name: PrimaryLendingPlatformV3
     network: {{ network }}
     source:
-      abi: PrimaryLendingPlatformV2
+      abi: PrimaryLendingPlatformV3
       address: '{{ plp_address }}'
       startBlock: {{ plp_startBlock }}
     mapping:
@@ -29,8 +29,8 @@ dataSources:
         - BorrowedState
         - Borrower
       abis:
-        - name: PrimaryLendingPlatformV2
-          file: ./abis/PrimaryLendingPlatformV2.json
+        - name: PrimaryLendingPlatformV3
+          file: ./abis/PrimaryLendingPlatformV3.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: PriceProviderAggregator
@@ -39,7 +39,7 @@ dataSources:
           file: ./abis/BLendingToken.json
         
       eventHandlers:
-        - event: Borrow(indexed address,indexed address,uint256,indexed address,uint256)
+        - event: Borrow(indexed address,indexed address,uint256)
           handler: handleBorrow
         - event: Deposit(indexed address,indexed address,uint256,indexed address)
           handler: handleDeposit
@@ -47,13 +47,13 @@ dataSources:
           handler: handleRedeem
         - event: RedeemUnderlying(indexed address,indexed address,indexed address,uint256)
           handler: handleRedeemUnderlying
-        - event: RepayBorrow(indexed address,indexed address,uint256,indexed address,bool)
+        - event: RepayBorrow(indexed address,indexed address,uint256,bool,indexed bytes32)
           handler: handleRepayBorrow
         - event: Supply(indexed address,indexed address,uint256,indexed address,uint256)
           handler: handleSupply
-        - event: Withdraw(indexed address,indexed address,address,uint256,indexed address)
+        - event: Withdraw(indexed address,indexed address,uint256,indexed address)
           handler: handleWithdraw
-      file: ./src/mapping.ts
+      file: ./src/plpV3.mapping.ts
 
   - kind: ethereum/contract
     name: PrimaryLendingPlatformLeverage
@@ -80,8 +80,8 @@ dataSources:
       abis:
         - name: PrimaryLendingPlatformLeverage
           file: ./abis/PrimaryLendingPlatformLeverage.json
-        - name: PrimaryLendingPlatformV2
-          file: ./abis/PrimaryLendingPlatformV2.json
+        - name: PrimaryLendingPlatformV3
+          file: ./abis/PrimaryLendingPlatformV3.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: BLendingToken
@@ -89,9 +89,11 @@ dataSources:
         - name: PriceProviderAggregator
           file: ./abis/PriceProviderAggregator.json
       eventHandlers:
-        - event: LeveragedBorrow(address,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
+        - event: LeveragedBorrow(indexed address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8)
           handler: handleLeveragedBorrow
-      file: ./src/mapping.ts
+        - event: ClosePosition(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handleClosePosition
+      file: ./src/plpLeverageBorrow.mapping.ts
 
   - kind: ethereum/contract
     name: PrimaryLendingPlatformModerator
@@ -116,11 +118,11 @@ dataSources:
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
       eventHandlers:
-        - event: AddPrjToken(indexed address,indexed string,indexed string)
+        - event: AddPrjToken(indexed address)
           handler: handleAddPrjToken
         - event: RemoveProjectToken(indexed address)
           handler: handleRemoveProjectToken
-        - event: AddLendingToken(indexed address,indexed string,indexed string)
+        - event: AddLendingToken(indexed address)
           handler: handleAddLendingToken
         - event: RemoveLendingToken(indexed address)
           handler: handleRemoveLendingToken
@@ -128,10 +130,10 @@ dataSources:
           handler: handleSetPausedProjectToken
         - event: SetPausedLendingToken(indexed address,bool)
           handler: handleSetPausedLendingToken
-        - event: SetBorrowLimitPerCollateralAsset(indexed address,uint256)
-          handler: handleSetBorrowLimitPerCollateralAsset
+        - event: SetDepositLimitPerProjectAsset(indexed address,uint256)
+          handler: handleSetDepositLimitPerProjectAsset
         - event: SetBorrowLimitPerLendingAsset(indexed address,uint256)
           handler: handleSetBorrowLimitPerLendingAsset
         - event: LoanToValueRatioSet(indexed address,uint8,uint8)
           handler: handleLoanToValueRatioSet
-      file: ./src/mapping.ts
+      file: ./src/plpModerator.mapping.ts
