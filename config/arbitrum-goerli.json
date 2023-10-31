@@ -1,9 +1,10 @@
 {
     "network": "arbitrum-goerli",
-    "plp_address": "",
-    "plp_startBlock": 0,
-    "plp_leverage_address": "",
-    "plp_leverage_startBlock": 0,
-    "plp_moderator_address": "",
-    "plp_moderator_startBlock": 0
+    "plp_address": "0x5cA2ffF40e2a7a66a23c3D2CDD57CcFAdcbdBca8",
+    "plp_startBlock": 37496575,
+    "plp_leverage_address": "0xcEC6943aC4462FBFCc9AD0Be6B1391e2B3b17422",
+    "plp_leverage_startBlock": 37496631,
+    "plp_moderator_address": "0xE215E69F613dbaDF7beD2955B116D130C54beD77",
+    "plp_moderator_startBlock": 37496583,
+    "blocks_per_day": 336000
 }

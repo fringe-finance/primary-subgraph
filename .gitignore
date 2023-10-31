@@ -2,3 +2,4 @@
 /build
 /generated
 subgraph.yaml
+/src/constants/configs.ts

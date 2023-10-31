@@ -116,7 +116,8 @@ Then, set the following in your config file:
     "plp_leverage_address": "<plp_leverage_contract_address>",
     "plp_leverage_startBlock": "<init_block_of_plp_leverage_contract>",
     "plp_moderator_address": "<plp_moderator_contract_address>",
-    "plp_moderator_startBlock": "<init_block_of_plp_moderator_contract>"
+    "plp_moderator_startBlock": "<init_block_of_plp_moderator_contract>",
+    "blocks_per_day" : "<blocks_per_day>"
 }
 ```
 
@@ -130,7 +131,8 @@ Then, set the following in your config file:
     "plp_leverage_address": "0xa26F380Dc9aadceAAeAcEd794c8be2E2D5C1f1f1",
     "plp_leverage_startBlock": 40092028,
     "plp_moderator_address": "0xb44021Ba8eb624b44bdF70D328C2441a8698c6A5",
-    "plp_moderator_startBlock": 39264701
+    "plp_moderator_startBlock": 39264701,
+    "blocks_per_day" : 7200
 }
 ```
 
