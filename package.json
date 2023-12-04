@@ -22,8 +22,8 @@
     "prepare:optimism-goerli": "mustache config/optimism-goerli.json subgraph.template.yaml > subgraph.yaml && mustache config/optimism-goerli.json src/constants/configs.template.ts > src/constants/configs.ts",
     "deploy-optimism-goerli": "graph deploy --product hosted-service locnguyenlotussoft/plp-optimism-goerli-test",
     
-    "prepare:zksync2-testnet": "mustache config/zksync2-testnet.json subgraph.template.yaml > subgraph.yaml && mustache config/zksync2-testnet.json src/constants/configs.template.ts > src/constants/configs.ts",
-    "deploy-zksync2-testnet": "graph deploy --product hosted-service locnguyenlotussoft/plp-zksync2-testnet-test",
+    "prepare:zksync-era-testnet": "mustache config/zksync-era-testnet.json subgraph.template.yaml > subgraph.yaml && mustache config/zksync-era-testnet.json src/constants/configs.template.ts > src/constants/configs.ts",
+    "deploy-zksync-era-testnet": "graph deploy --product hosted-service locnguyenlotussoft/plp-zksync-test",
     
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml && mustache config/mainnet.json src/constants/configs.template.ts > src/constants/configs.ts",
     "deploy-mainnet": "graph deploy --studio plp-mainnet",

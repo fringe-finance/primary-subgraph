@@ -104,7 +104,7 @@ The **network_name** takes the list below:
 
 * `arbitrum-goerli`
 
-* `zksync2-testnet`
+* `zksync-era-testnet`
 
 Then, set the following in your config file:
 
