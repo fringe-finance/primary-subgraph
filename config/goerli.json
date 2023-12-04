@@ -6,5 +6,5 @@
     "plp_leverage_startBlock": 9599703,
     "plp_moderator_address": "0x3bC03664F930C0C45759B68300Bd7a241109d21b",
     "plp_moderator_startBlock": 9599696,
-    "blocks_per_day": 7200
+    "blocksPerDay": 7200
 }

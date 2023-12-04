@@ -56,6 +56,7 @@ import { USD_DECIMALS, SCALE_DECIMALS } from "./constants/decimals";
 import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "./constants/configs";
 import { exponentToBigDecimal, pow } from "./helpers";
 import { Address, BigDecimal, BigInt, store, dataSource, log } from "@graphprotocol/graph-ts";
+import { AssetType } from "./constants/assetsType";
 
 export function handleAddPrjToken(event: AddPrjToken): void {
     const id = event.params.tokenPrj.toHex();
@@ -354,13 +355,15 @@ function handleLeveragedBorrowLog<T>(event: T): void {
     const projectTokenPrice = getUsdOraclePrice(
         primaryLendingPlatformV2,
         event.params.projectToken,
-        BigInt.fromString(exponentToBigDecimal(prjToken.decimals()).toString())
+        BigInt.fromString(exponentToBigDecimal(prjToken.decimals()).toString()),
+        AssetType.PROJECT
     );
     entity.prjTokenPrice = projectTokenPrice;
     entity.lendingTokenPrice = getUsdOraclePrice(
         primaryLendingPlatformV2,
         event.params.lendingToken,
-        BigInt.fromString(exponentToBigDecimal(lendingToken.decimals()).toString())
+        BigInt.fromString(exponentToBigDecimal(lendingToken.decimals()).toString()),
+        AssetType.LENDING
     );
     entity.marginCount = event.params.margin.toBigDecimal().div(exponentToBigDecimal(prjToken.decimals()));
     entity.marginAmount = event.params.margin
@@ -432,7 +435,8 @@ function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
             const collateralAmount = getUsdOraclePrice(
                 primaryLendingPlatformV2,
                 lendingTokensList[i],
-                totalBorrow
+                totalBorrow,
+                AssetType.LENDING
             )
                 .times(BigDecimal.fromString(lvr.denominator.toString()))
                 .div(BigDecimal.fromString(lvr.numerator.toString()));
@@ -441,7 +445,8 @@ function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
         const outstandingUSDAmount = getUsdOraclePrice(
             primaryLendingPlatformV2,
             lendingTokensList[i],
-            outstandingAmount
+            outstandingAmount,
+            AssetType.LENDING
         );
         totalOutstandingAmount = totalOutstandingAmount.plus(outstandingUSDAmount);
 
@@ -475,7 +480,8 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
         const usdOraclePrice = getUsdOraclePrice(
             primaryLendingPlatformV2,
             prjTokensList[i],
-            totalDepositedPerToken
+            totalDepositedPerToken,
+            AssetType.PROJECT
         );
         usdAmount = usdAmount.plus(usdOraclePrice);
 
@@ -495,7 +501,8 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
             const borrowedUSDAmount = getUsdOraclePrice(
                 primaryLendingPlatformV2,
                 lendingTokensList[j],
-                borrowedAmount
+                borrowedAmount,
+                AssetType.LENDING
             );
             totalBorrowedUSDAmount = totalBorrowedUSDAmount.plus(borrowedUSDAmount);
 
@@ -508,7 +515,8 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
             const outstandingUSDAmount = getUsdOraclePrice(
                 primaryLendingPlatformV2,
                 lendingTokensList[j],
-                outstandingAmount
+                outstandingAmount,
+                AssetType.LENDING
             );
             totalOutstandingUSDAmount = totalOutstandingUSDAmount.plus(outstandingUSDAmount);
         }
@@ -942,16 +950,21 @@ function updateLenderAggregateCapitalDepositedHistory<T>(
 function getUsdOraclePrice(
     primaryLendingPlatformV2: PrimaryLendingPlatformV2,
     tokenAddr: Address,
-    amount: BigInt
+    amount: BigInt,
+    tokenType: AssetType
 ): BigDecimal {
     const priceOracle = PriceProviderAggregator.bind(primaryLendingPlatformV2.priceOracle());
-    const usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount);
+    const usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount, false);
     if (usdOraclePrice.reverted) {
         log.info("tokenAddr: {}, amount: {}", [tokenAddr.toHexString(), amount.toString()]);
         return BigDecimal.fromString("0");
     }
 
-    return usdOraclePrice.value.toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
+    if (tokenType === AssetType.PROJECT) {
+        return usdOraclePrice.value.getCollateralEvaluation().toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
+    } else {
+        return usdOraclePrice.value.getCapitalEvaluation().toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
+    }
 }
 
 function getPrjTokensList(primaryLendingPlatformV2: PrimaryLendingPlatformV2): Array<Address> {
@@ -1029,7 +1042,8 @@ function getLenderAggregateCapitalDepositedPerLendingToken(
     const usdOraclePrice = getUsdOraclePrice(
         primaryLendingPlatformV2,
         lendingTokenAddress,
-        totalSupplyLendingToken
+        totalSupplyLendingToken,
+        AssetType.LENDING
     ).div(exponentToBigDecimal(SCALE_DECIMALS));
 
     return usdOraclePrice;

@@ -16,15 +16,15 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "user",
+        "name": "liquidator",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
-        "name": "projectToken",
+        "name": "borrower",
         "type": "address"
       },
       {
@@ -34,43 +34,19 @@
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "notionalExposure",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "address",
+        "name": "prjAddress",
+        "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "lendingAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "margin",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "addingAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "totalDepositedAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountReceive",
+        "name": "amountPrjLiquidated",
         "type": "uint256"
       }
     ],
-    "name": "LeveragedBorrow",
+    "name": "Liquidate",
     "type": "event"
   },
   {
@@ -152,13 +128,51 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOpenOceanExchangeProxy",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "numeratorLRF",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "denominatorLRF",
+        "type": "uint8"
       }
     ],
-    "name": "SetOpenOceanExchangeProxy",
+    "name": "SetLiquidatorRewardCalculationFactor",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "numeratorLRF",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "denominatorLRF",
+        "type": "uint8"
+      }
+    ],
+    "name": "SetMaxLRF",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "newAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "SetMinPartialLiquidationAmount",
     "type": "event"
   },
   {
@@ -175,6 +189,25 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "numeratorHF",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "denominatorHF",
+        "type": "uint8"
+      }
+    ],
+    "name": "SetTargetHealthFactor",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
     "outputs": [
@@ -182,6 +215,19 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LIQUIDATOR_REWARD_FACTOR_DECIMAL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -204,25 +250,30 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "user",
+        "name": "_account",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "projectToken",
+        "name": "_projectToken",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "marginCollateralCount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
       }
     ],
-    "name": "calculateAddingAmount",
+    "name": "getCurrentHealthFactor",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "addingAmount",
+        "name": "healthFactorNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "healthFactorDenominator",
         "type": "uint256"
       }
     ],
@@ -232,65 +283,148 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "expAmount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "margin",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "borrowAmount",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "lvrNumerator",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
       },
       {
-        "internalType": "uint256",
-        "name": "lvrDenominator",
-        "type": "uint256"
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
       }
     ],
-    "name": "calculateHF",
+    "name": "getCurrentHealthFactorWithUpdatePrices",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "hfNumerator",
+        "name": "healthFactorNumerator",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "hfDenominator",
+        "name": "healthFactorDenominator",
         "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "getLiquidationAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxLA",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minLA",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "getLiquidationAmountWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxLA",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minLA",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "lendingToken",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "notionalValue",
-        "type": "uint256"
       }
     ],
-    "name": "calculateLendingTokenCount",
+    "name": "getMaxLiquidationAmount",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "lendingTokenCount",
+        "name": "maxLA",
         "type": "uint256"
       }
     ],
@@ -301,133 +435,39 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "projectToken",
+        "name": "_account",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "lendingToken",
+        "name": "_projectToken",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "safetyMarginNumerator",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "safetyMarginDenominator",
-        "type": "uint256"
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
       },
       {
-        "internalType": "uint256",
-        "name": "expAmount",
-        "type": "uint256"
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
       }
     ],
-    "name": "calculateMargin",
+    "name": "getMaxLiquidationAmountWithUpdatePrices",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "marginAmount",
+        "name": "maxLA",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "lendingToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "margin",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "exp",
-        "type": "uint256"
-      }
-    ],
-    "name": "calculateSafetyMargin",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "safetyMarginNumerator",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "safetyMarginDenominator",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
-      }
-    ],
-    "name": "deleteLeveragePosition",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "exchangeAggregator",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "borrower",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
-      }
-    ],
-    "name": "getLeverageType",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -455,6 +495,11 @@
         "internalType": "address",
         "name": "token",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
     "name": "getTokenPrice",
@@ -471,6 +516,45 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "getTokenPriceWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "collateralPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "capitalPrice",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -532,21 +616,102 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "_account",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "_projectToken",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_lendingTokenAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
       }
     ],
-    "name": "isLeveragePosition",
+    "name": "liquidate",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_lendingTokenAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "liquidator",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "liquidateFromModerator",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint256",
         "name": "",
-        "type": "bool"
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "liquidatorRewardCalcFactor",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "numerator",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "denominator",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -555,68 +720,53 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "margin",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "exp",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_projectToken",
+        "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "lvrNumerator",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lvrDenominator",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
       }
     ],
-    "name": "isValidCollateralization",
+    "name": "liquidatorRewardFactor",
     "outputs": [
       {
-        "internalType": "bool",
-        "name": "isValid",
-        "type": "bool"
+        "internalType": "uint256",
+        "name": "lrfNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lrfDenominator",
+        "type": "uint256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "projectToken",
+        "name": "_account",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "lendingToken",
+        "name": "_projectToken",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "notionalExposure",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "marginCollateralAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "buyCalldata",
-        "type": "bytes"
-      },
-      {
-        "internalType": "uint8",
-        "name": "leverageType",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
       },
       {
         "internalType": "bytes32[]",
@@ -629,62 +779,51 @@
         "type": "bytes[]"
       }
     ],
-    "name": "leveragedBorrow",
-    "outputs": [],
+    "name": "liquidatorRewardFactorWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lrfNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lrfDenominator",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "lendingToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "notionalExposure",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "marginCollateralAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "buyCalldata",
-        "type": "bytes"
-      },
-      {
-        "internalType": "address",
-        "name": "borrower",
-        "type": "address"
-      },
+    "inputs": [],
+    "name": "maxLRF",
+    "outputs": [
       {
         "internalType": "uint8",
-        "name": "leverageType",
+        "name": "numerator",
         "type": "uint8"
       },
       {
-        "internalType": "bytes32[]",
-        "name": "priceIds",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "updateData",
-        "type": "bytes[]"
+        "internalType": "uint8",
+        "name": "denominator",
+        "type": "uint8"
       }
     ],
-    "name": "leveragedBorrowFromRelatedContract",
-    "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minPartialLiquidationAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -739,12 +878,48 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "exchangeAggregatorAddress",
-        "type": "address"
+        "internalType": "uint8",
+        "name": "numeratorLRF",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "denominatorLRF",
+        "type": "uint8"
       }
     ],
-    "name": "setExchangeAggregator",
+    "name": "setLiquidatorRewardCalculationFactor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "numeratorLRF",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "denominatorLRF",
+        "type": "uint8"
+      }
+    ],
+    "name": "setMaxLRF",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinPartialLiquidationAmount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -758,6 +933,24 @@
       }
     ],
     "name": "setPrimaryLendingPlatformAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "numeratorHF",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "denominatorHF",
+        "type": "uint8"
+      }
+    ],
+    "name": "setTargetHealthFactor",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -782,23 +975,17 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "typeOfLeveragePosition",
+    "inputs": [],
+    "name": "targetHealthFactor",
     "outputs": [
       {
-        "internalType": "enum PrimaryLendingPlatformLeverageCore.LeverageType",
-        "name": "",
+        "internalType": "uint8",
+        "name": "numerator",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "denominator",
         "type": "uint8"
       }
     ],

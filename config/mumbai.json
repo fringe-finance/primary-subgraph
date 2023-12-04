@@ -1,10 +1,10 @@
 {
     "network": "mumbai",
-    "plp_address": "",
-    "plp_startBlock": 0,
-    "plp_leverage_address": "",
-    "plp_leverage_startBlock": 0,
-    "plp_moderator_address": "",
-    "plp_moderator_startBlock": 0,
-    "blocks_per_day": 0
+    "plp_address": "0x68981cEFAD7df61FFfbD6Bf009ac47B8b2c9D8b6",
+    "plp_startBlock": 42888219,
+    "plp_leverage_address": "0x008013b01499A00707294c6540f0dEaa6C06D4A4",
+    "plp_leverage_startBlock": 42888255,
+    "plp_moderator_address": "0xCdab12A4A3Ab6Add7a7e23B24F5CBf9e2c0C0baE",
+    "plp_moderator_startBlock": 42888228,
+    "blocksPerDay": 2102400
 }
