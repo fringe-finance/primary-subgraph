@@ -21,9 +21,6 @@ import {
     Redeem,
     RedeemUnderlying,
     RepayBorrow,
-    RoleAdminChanged,
-    RoleGranted,
-    RoleRevoked,
     Supply,
     Withdraw
 } from "../generated/PrimaryLendingPlatformV2/PrimaryLendingPlatformV2";
@@ -945,10 +942,13 @@ function getUsdOraclePrice(
     amount: BigInt
 ): BigDecimal {
     const priceOracle = PriceProviderAggregator.bind(primaryLendingPlatformV2.priceOracle());
-    const usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount);
+    let usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount);
     if (usdOraclePrice.reverted) {
-        log.info("tokenAddr: {}, amount: {}", [tokenAddr.toHexString(), amount.toString()]);
-        return BigDecimal.fromString("0");
+        usdOraclePrice = priceOracle.try_getEvaluationUnsafe(tokenAddr, amount);
+        if (usdOraclePrice.reverted) {
+            log.info("Price error with tokenAddr: {}, amount: {}", [tokenAddr.toHexString(), amount.toString()]);
+            return BigDecimal.fromString("0");
+        }
     }
 
     return usdOraclePrice.value.toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));

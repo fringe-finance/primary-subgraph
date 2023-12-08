@@ -1,4 +1,4 @@
-[
+  [
     {
       "anonymous": false,
       "inputs": [
@@ -164,7 +164,7 @@
           "type": "address"
         }
       ],
-      "name": "SetAugustusParaswap",
+      "name": "SetExchangeAggregator",
       "type": "event"
     },
     {
@@ -307,6 +307,40 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_lendingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "notionalValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "priceIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "updateData",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "calculateLendingTokenCountWithUpdatePrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lendingTokenCount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "projectToken",
           "type": "address"
         },
@@ -356,6 +390,55 @@
         },
         {
           "internalType": "uint256",
+          "name": "safetyMarginNumerator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "safetyMarginDenominator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "expAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "priceIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "updateData",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "calculateMarginWithUpdatePrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "marginAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "projectToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "lendingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
           "name": "margin",
           "type": "uint256"
         },
@@ -379,6 +462,55 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "projectToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "lendingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "margin",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "exp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "priceIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "updateData",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "calculateSafetyMarginWithUpdatePrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "safetyMarginNumerator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "safetyMarginDenominator",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -472,6 +604,35 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "priceIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "updateData",
+          "type": "bytes[]"
+        }
+      ],
+      "name": "getTokenPriceWithUpdatePrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -618,11 +779,21 @@
           "internalType": "uint8",
           "name": "leverageType",
           "type": "uint8"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "priceIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "updateData",
+          "type": "bytes[]"
         }
       ],
       "name": "leveragedBorrow",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -661,11 +832,21 @@
           "internalType": "uint8",
           "name": "leverageType",
           "type": "uint8"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "priceIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "updateData",
+          "type": "bytes[]"
         }
       ],
       "name": "leveragedBorrowFromRelatedContract",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
