@@ -1,3 +1,4 @@
+import { SpecialERC20 } from "./../generated/PrimaryLendingPlatformModerator/SpecialERC20";
 import {
     LeveragedBorrow,
     PrimaryLendingPlatformLeverage
@@ -52,7 +53,7 @@ import { DEPOSIT, BORROW, REPAY, WITHDRAW, LEVERAGE_BORROW } from "./constants/e
 import { USD_DECIMALS, SCALE_DECIMALS } from "./constants/decimals";
 import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "./constants/configs";
 import { exponentToBigDecimal, pow } from "./helpers";
-import { Address, BigDecimal, BigInt, store, dataSource, log } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, store, dataSource, log, Bytes } from "@graphprotocol/graph-ts";
 
 export function handleAddPrjToken(event: AddPrjToken): void {
     const id = event.params.tokenPrj.toHex();
@@ -64,8 +65,15 @@ export function handleAddPrjToken(event: AddPrjToken): void {
     }
     const token = ERC20.bind(event.params.tokenPrj);
     entity.address = event.params.tokenPrj;
-    entity.name = token.name();
-    entity.symbol = token.symbol();
+    const name = token.try_name();
+    if (name.reverted) {
+        const token = SpecialERC20.bind(event.params.tokenPrj);
+        entity.name = token.name().toString();
+        entity.symbol = token.symbol().toString();
+    } else {
+        entity.name = name.value;
+        entity.symbol = token.symbol();
+    }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.tokenPrj, isAddNew);
     entity.save();
@@ -81,8 +89,15 @@ export function handleAddLendingToken(event: AddLendingToken): void {
     }
     const token = ERC20.bind(event.params.lendingToken);
     entity.address = event.params.lendingToken;
-    entity.name = token.name();
-    entity.symbol = token.symbol();
+    const name = token.try_name();
+    if (name.reverted) {
+        const token = SpecialERC20.bind(event.params.lendingToken);
+        entity.name = token.name().toString();
+        entity.symbol = token.symbol().toString();
+    } else {
+        entity.name = name.value;
+        entity.symbol = token.symbol();
+    }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.lendingToken, isAddNew);
     entity.save();
@@ -253,12 +268,19 @@ function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean):
 }
 
 function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean): void {
-    const token0 = ERC20.bind(tokenAddress);
+    const token = ERC20.bind(tokenAddress);
     let entity = ERC20Token.load(tokenAddress.toHex());
     if (entity == null) {
         entity = new ERC20Token(tokenAddress.toHex());
-        entity.name = token0.name();
-        entity.symbol = token0.symbol();
+        const name = token.try_name();
+        if (name.reverted) {
+            const token = SpecialERC20.bind(tokenAddress);
+            entity.name = token.name().toString();
+            entity.symbol = token.symbol().toString();
+        } else {
+            entity.name = name.value;
+            entity.symbol = token.symbol();
+        }
         entity.address = tokenAddress;
     }
     if (isAddNew) {
@@ -946,7 +968,10 @@ function getUsdOraclePrice(
     if (usdOraclePrice.reverted) {
         usdOraclePrice = priceOracle.try_getEvaluationUnsafe(tokenAddr, amount);
         if (usdOraclePrice.reverted) {
-            log.info("Price error with tokenAddr: {}, amount: {}", [tokenAddr.toHexString(), amount.toString()]);
+            log.info("Price error with tokenAddr: {}, amount: {}", [
+                tokenAddr.toHexString(),
+                amount.toString()
+            ]);
             return BigDecimal.fromString("0");
         }
     }
@@ -1056,7 +1081,10 @@ function getOutstandingPerPair<T>(
                         projectTokenAddress,
                         lendingTokenAddress
                     );
-                    const depositedAmount = primaryLendingPlatformV2.getDepositedAmount(projectTokenAddress, borrower);
+                    const depositedAmount = primaryLendingPlatformV2.getDepositedAmount(
+                        projectTokenAddress,
+                        borrower
+                    );
                     const positionLoan = primaryLendingPlatformV2.borrowPosition(
                         borrower,
                         projectTokenAddress,

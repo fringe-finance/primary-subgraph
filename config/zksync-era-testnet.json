@@ -1,5 +1,5 @@
 {
-    "network": "zksync2-testnet",
+    "network": "zksync-era-testnet",
     "plp_address": "",
     "plp_startBlock": 0,
     "plp_leverage_address": "",
