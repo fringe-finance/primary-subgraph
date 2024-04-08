@@ -1,10 +1,10 @@
 {
     "network": "goerli",
-    "plp_address": "0x0E53d9A4d9D8A16217dAfF5b89C2ff6F1146d42e",
-    "plp_startBlock": 9599694,
-    "plp_leverage_address": "0x666697447A2F35d10f1e0015Ad8DdE1342aEFa43",
-    "plp_leverage_startBlock": 9599703,
-    "plp_moderator_address": "0x3bC03664F930C0C45759B68300Bd7a241109d21b",
-    "plp_moderator_startBlock": 9599696,
-    "blocksPerDay": 7200
+    "plp_address": "0xc8ba868290911e95Dc94Beb394eAc9e832f6774C",
+    "plp_startBlock": 10403894,
+    "plp_leverage_address": "0xd456d3e01615f0C419ebcb8ECB707978Bab70dA6",
+    "plp_leverage_startBlock": 10403902,
+    "plp_moderator_address": "0x82F42A9d60B12530c698D60D8D3410206535b358",
+    "plp_moderator_startBlock": 10403896,
+    "blocks_per_day": 7200
 }

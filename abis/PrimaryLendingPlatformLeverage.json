@@ -154,11 +154,17 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "newOpenOceanExchangeProxy",
+        "name": "exchangeAggregator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "registryAggregator",
         "type": "address"
       }
     ],
-    "name": "SetOpenOceanExchangeProxy",
+    "name": "SetExchangeAggregator",
     "type": "event"
   },
   {
@@ -173,6 +179,19 @@
     ],
     "name": "SetPrimaryLendingPlatform",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "BUFFER_PERCENTAGE",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -701,6 +720,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "registryAggregator",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -741,6 +773,11 @@
       {
         "internalType": "address",
         "name": "exchangeAggregatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "registryAggregatorAddress",
         "type": "address"
       }
     ],

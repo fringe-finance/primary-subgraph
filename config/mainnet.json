@@ -1,10 +1,10 @@
 {
     "network": "mainnet",
-    "plp_address": "",
-    "plp_startBlock": 0,
-    "plp_leverage_address": "",
-    "plp_leverage_startBlock": 0,
-    "plp_moderator_address": "",
-    "plp_moderator_startBlock": 0,
-    "blocksPerDay": 0
+    "plp_address": "0x70467416507B75543C18093096BA4612a9261DB8",
+    "plp_startBlock": 18991180,
+    "plp_leverage_address": "0xd52294bCB67eaF899B9a55601F9E2496047fC6F4",
+    "plp_leverage_startBlock": 18991268,
+    "plp_moderator_address": "0x3b5E18119F905762c9705FFF47B95Ae890713284",
+    "plp_moderator_startBlock": 18991200,
+    "blocks_per_day": 7200
 }

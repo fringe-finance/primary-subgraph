@@ -1,0 +1,10 @@
+{
+    "network": "zksync-era-testnet",
+    "plp_address": "0x3AD0a2255F9d828855A6D453bf969912619b9B85",
+    "plp_startBlock": 16083390,
+    "plp_leverage_address": "0x43E86a00bF47d445aE6791A2a0a70C32265b9430",
+    "plp_leverage_startBlock": 16150688,
+    "plp_moderator_address": "0xa4cC4B6719778818131E3503eD3Bfe31497D445d",
+    "plp_moderator_startBlock": 16083396,
+    "blocks_per_day": 84000
+}

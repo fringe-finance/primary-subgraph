@@ -1,5 +1,110 @@
 [
   {
+    "inputs": [],
+    "name": "AvailableAmounToBorrowIsZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BLendingTokenAmoutIsZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CallerIsNotAdmin",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CallerIsNotModerator",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CallerIsNotRelatedContract",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAmountOrDepositDoesNotExist",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidLendingAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidLendingToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidPosition",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LendingTokenIsNotListed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MintErrorIsNotZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MintedAmountIsZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoBorrowPosition",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ProjectTokenIsNotListed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RedeemErrorIsNotZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RedeemUnderlyingErrorIsNotZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenIsPaused",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokensListIsEmpty",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "WithdrawableAmountIsZero",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -851,11 +956,6 @@
         "internalType": "address",
         "name": "lendingToken",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       }
     ],
     "name": "getPosition",
@@ -905,11 +1005,6 @@
         "internalType": "address",
         "name": "lendingToken",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       },
       {
         "internalType": "bytes32[]",
@@ -1002,11 +1097,6 @@
         "internalType": "uint256",
         "name": "tokenAmount",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       }
     ],
     "name": "getTokenEvaluation",
@@ -1036,11 +1126,6 @@
         "internalType": "uint256",
         "name": "tokenAmount",
         "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       },
       {
         "internalType": "bytes32[]",
@@ -1356,11 +1441,6 @@
         "internalType": "address",
         "name": "lendingToken",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       }
     ],
     "name": "pit",
@@ -1425,50 +1505,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "lendingToken",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "priceIds",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "updateData",
-        "type": "bytes[]"
-      }
-    ],
-    "name": "pitWithUpdatePrices",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -2177,11 +2213,6 @@
         "internalType": "address",
         "name": "lendingToken",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       }
     ],
     "name": "totalOutstandingInUSD",
@@ -2211,11 +2242,6 @@
         "internalType": "address",
         "name": "lendingToken",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "useForLiquidate",
-        "type": "bool"
       },
       {
         "internalType": "bytes32[]",

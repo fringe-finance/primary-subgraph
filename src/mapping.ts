@@ -1,3 +1,4 @@
+import { SpecialERC20 } from "./../generated/PrimaryLendingPlatformModerator/SpecialERC20";
 import {
     LeveragedBorrow,
     PrimaryLendingPlatformLeverage
@@ -21,9 +22,6 @@ import {
     Redeem,
     RedeemUnderlying,
     RepayBorrow,
-    RoleAdminChanged,
-    RoleGranted,
-    RoleRevoked,
     Supply,
     Withdraw
 } from "../generated/PrimaryLendingPlatformV2/PrimaryLendingPlatformV2";
@@ -68,8 +66,15 @@ export function handleAddPrjToken(event: AddPrjToken): void {
     }
     const token = ERC20.bind(event.params.tokenPrj);
     entity.address = event.params.tokenPrj;
-    entity.name = token.name();
-    entity.symbol = token.symbol();
+    const name = token.try_name();
+    if (name.reverted) {
+        const token = SpecialERC20.bind(event.params.tokenPrj);
+        entity.name = token.name().toString();
+        entity.symbol = token.symbol().toString();
+    } else {
+        entity.name = name.value;
+        entity.symbol = token.symbol();
+    }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.tokenPrj, isAddNew);
     entity.save();
@@ -85,8 +90,15 @@ export function handleAddLendingToken(event: AddLendingToken): void {
     }
     const token = ERC20.bind(event.params.lendingToken);
     entity.address = event.params.lendingToken;
-    entity.name = token.name();
-    entity.symbol = token.symbol();
+    const name = token.try_name();
+    if (name.reverted) {
+        const token = SpecialERC20.bind(event.params.lendingToken);
+        entity.name = token.name().toString();
+        entity.symbol = token.symbol().toString();
+    } else {
+        entity.name = name.value;
+        entity.symbol = token.symbol();
+    }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.lendingToken, isAddNew);
     entity.save();
@@ -257,12 +269,19 @@ function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean):
 }
 
 function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean): void {
-    const token0 = ERC20.bind(tokenAddress);
+    const token = ERC20.bind(tokenAddress);
     let entity = ERC20Token.load(tokenAddress.toHex());
     if (entity == null) {
         entity = new ERC20Token(tokenAddress.toHex());
-        entity.name = token0.name();
-        entity.symbol = token0.symbol();
+        const name = token.try_name();
+        if (name.reverted) {
+            const token = SpecialERC20.bind(tokenAddress);
+            entity.name = token.name().toString();
+            entity.symbol = token.symbol().toString();
+        } else {
+            entity.name = name.value;
+            entity.symbol = token.symbol();
+        }
         entity.address = tokenAddress;
     }
     if (isAddNew) {
@@ -356,14 +375,14 @@ function handleLeveragedBorrowLog<T>(event: T): void {
         primaryLendingPlatformV2,
         event.params.projectToken,
         BigInt.fromString(exponentToBigDecimal(prjToken.decimals()).toString()),
-        AssetType.PROJECT
+        AssetType.COLLATERAL
     );
     entity.prjTokenPrice = projectTokenPrice;
     entity.lendingTokenPrice = getUsdOraclePrice(
         primaryLendingPlatformV2,
         event.params.lendingToken,
         BigInt.fromString(exponentToBigDecimal(lendingToken.decimals()).toString()),
-        AssetType.LENDING
+        AssetType.CAPITAL
     );
     entity.marginCount = event.params.margin.toBigDecimal().div(exponentToBigDecimal(prjToken.decimals()));
     entity.marginAmount = event.params.margin
@@ -436,7 +455,7 @@ function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
                 primaryLendingPlatformV2,
                 lendingTokensList[i],
                 totalBorrow,
-                AssetType.LENDING
+                AssetType.CAPITAL
             )
                 .times(BigDecimal.fromString(lvr.denominator.toString()))
                 .div(BigDecimal.fromString(lvr.numerator.toString()));
@@ -446,7 +465,7 @@ function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
             primaryLendingPlatformV2,
             lendingTokensList[i],
             outstandingAmount,
-            AssetType.LENDING
+            AssetType.CAPITAL
         );
         totalOutstandingAmount = totalOutstandingAmount.plus(outstandingUSDAmount);
 
@@ -481,7 +500,7 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
             primaryLendingPlatformV2,
             prjTokensList[i],
             totalDepositedPerToken,
-            AssetType.PROJECT
+            AssetType.COLLATERAL
         );
         usdAmount = usdAmount.plus(usdOraclePrice);
 
@@ -502,7 +521,7 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
                 primaryLendingPlatformV2,
                 lendingTokensList[j],
                 borrowedAmount,
-                AssetType.LENDING
+                AssetType.CAPITAL
             );
             totalBorrowedUSDAmount = totalBorrowedUSDAmount.plus(borrowedUSDAmount);
 
@@ -516,7 +535,7 @@ function handlePositionState<T>(event: T): Array<BigDecimal> {
                 primaryLendingPlatformV2,
                 lendingTokensList[j],
                 outstandingAmount,
-                AssetType.LENDING
+                AssetType.CAPITAL
             );
             totalOutstandingUSDAmount = totalOutstandingUSDAmount.plus(outstandingUSDAmount);
         }
@@ -954,16 +973,40 @@ function getUsdOraclePrice(
     tokenType: AssetType
 ): BigDecimal {
     const priceOracle = PriceProviderAggregator.bind(primaryLendingPlatformV2.priceOracle());
-    const usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount, false);
+    let usdOraclePrice = priceOracle.try_getEvaluation(tokenAddr, amount);
     if (usdOraclePrice.reverted) {
-        log.info("tokenAddr: {}, amount: {}", [tokenAddr.toHexString(), amount.toString()]);
-        return BigDecimal.fromString("0");
-    }
-
-    if (tokenType === AssetType.PROJECT) {
-        return usdOraclePrice.value.getCollateralEvaluation().toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
+        let mostUsdOraclePrice = priceOracle.try_getMostEvaluation(tokenAddr, amount);
+        if (mostUsdOraclePrice.reverted) {
+            log.info("Price error with tokenAddr: {}, amount: {}", [
+                tokenAddr.toHexString(),
+                amount.toString()
+            ]);
+            return BigDecimal.fromString("0");
+        } else {
+            if (tokenType === AssetType.COLLATERAL) {
+                return mostUsdOraclePrice.value
+                    .getCollateralEvaluation()
+                    .toBigDecimal()
+                    .div(exponentToBigDecimal(USD_DECIMALS));
+            } else {
+                return mostUsdOraclePrice.value
+                    .getCapitalEvaluation()
+                    .toBigDecimal()
+                    .div(exponentToBigDecimal(USD_DECIMALS));
+            }
+        }
     } else {
-        return usdOraclePrice.value.getCapitalEvaluation().toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
+        if (tokenType === AssetType.COLLATERAL) {
+            return usdOraclePrice.value
+                .getCollateralEvaluation()
+                .toBigDecimal()
+                .div(exponentToBigDecimal(USD_DECIMALS));
+        } else {
+            return usdOraclePrice.value
+                .getCapitalEvaluation()
+                .toBigDecimal()
+                .div(exponentToBigDecimal(USD_DECIMALS));
+        }
     }
 }
 
@@ -1043,7 +1086,7 @@ function getLenderAggregateCapitalDepositedPerLendingToken(
         primaryLendingPlatformV2,
         lendingTokenAddress,
         totalSupplyLendingToken,
-        AssetType.LENDING
+        AssetType.CAPITAL
     ).div(exponentToBigDecimal(SCALE_DECIMALS));
 
     return usdOraclePrice;
@@ -1070,7 +1113,10 @@ function getOutstandingPerPair<T>(
                         projectTokenAddress,
                         lendingTokenAddress
                     );
-                    const depositedAmount = primaryLendingPlatformV2.getDepositedAmount(projectTokenAddress, borrower);
+                    const depositedAmount = primaryLendingPlatformV2.getDepositedAmount(
+                        projectTokenAddress,
+                        borrower
+                    );
                     const positionLoan = primaryLendingPlatformV2.borrowPosition(
                         borrower,
                         projectTokenAddress,
