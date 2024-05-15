@@ -320,6 +320,40 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "notionalValue",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "calculateLendingTokenCountWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "lendingTokenCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "projectToken",
         "type": "address"
       },
@@ -369,6 +403,55 @@
       },
       {
         "internalType": "uint256",
+        "name": "safetyMarginNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginDenominator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "expAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "calculateMarginWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "marginAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
         "name": "margin",
         "type": "uint256"
       },
@@ -392,6 +475,55 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "projectToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "margin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "calculateSafetyMarginWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginNumerator",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "safetyMarginDenominator",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -608,14 +740,38 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "internalType": "enum Asset.Type",
+            "name": "tokenType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Asset.Info",
+        "name": "prjInfo",
+        "type": "tuple"
       },
       {
-        "internalType": "address",
-        "name": "lendingToken",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "internalType": "enum Asset.Type",
+            "name": "tokenType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Asset.Info",
+        "name": "lendingInfo",
+        "type": "tuple"
       },
       {
         "internalType": "uint256",
@@ -628,9 +784,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes",
+        "internalType": "bytes[]",
         "name": "buyCalldata",
-        "type": "bytes"
+        "type": "bytes[]"
       },
       {
         "internalType": "uint8",
@@ -656,14 +812,38 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "internalType": "enum Asset.Type",
+            "name": "tokenType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Asset.Info",
+        "name": "prjInfo",
+        "type": "tuple"
       },
       {
-        "internalType": "address",
-        "name": "lendingToken",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          },
+          {
+            "internalType": "enum Asset.Type",
+            "name": "tokenType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct Asset.Info",
+        "name": "lendingInfo",
+        "type": "tuple"
       },
       {
         "internalType": "uint256",
@@ -676,9 +856,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes",
+        "internalType": "bytes[]",
         "name": "buyCalldata",
-        "type": "bytes"
+        "type": "bytes[]"
       },
       {
         "internalType": "address",

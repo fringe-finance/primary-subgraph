@@ -1,3 +1,4 @@
+import { ERC4626 } from './../generated/PrimaryLendingPlatformModerator/ERC4626';
 import { SpecialERC20 } from "./../generated/PrimaryLendingPlatformModerator/SpecialERC20";
 import {
     LeveragedBorrow,
@@ -254,16 +255,29 @@ export function handleLeveragedBorrow(event: LeveragedBorrow): void {
 /************************************ Handle ERC20Token ************************************/
 function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean): Array<string> {
     let underlyingTokensList = new Array<string>();
-    const lpToken = UniswapV2Pair.bind(tokenAddress);
-    const existedLPToken = lpToken.try_token0();
 
-    if (!existedLPToken.reverted) {
-        const token0Address = existedLPToken.value;
-        const token1Address = lpToken.token1();
-        increaseUnderlyingToken(token0Address, isAddNew);
-        increaseUnderlyingToken(token1Address, isAddNew);
-        underlyingTokensList.push(token0Address.toHex());
-        underlyingTokensList.push(token1Address.toHex());
+    {
+        const token = UniswapV2Pair.bind(tokenAddress);
+        const existedUnderlyingToken = token.try_token0();
+
+        if (!existedUnderlyingToken.reverted) {
+            const token0Address = existedUnderlyingToken.value;
+            const token1Address = token.token1();
+            increaseUnderlyingToken(token0Address, isAddNew);
+            increaseUnderlyingToken(token1Address, isAddNew);
+            underlyingTokensList.push(token0Address.toHex());
+            underlyingTokensList.push(token1Address.toHex());
+        }
+    }
+    {
+        const token = ERC4626.bind(tokenAddress);
+        const existedUnderlyingToken = token.try_asset();
+
+        if (!existedUnderlyingToken.reverted) {
+            const underlyingToken = existedUnderlyingToken.value;
+            increaseUnderlyingToken(underlyingToken, isAddNew);
+            underlyingTokensList.push(underlyingToken.toHex());
+        }
     }
     return underlyingTokensList;
 }

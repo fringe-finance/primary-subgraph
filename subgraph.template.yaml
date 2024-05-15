@@ -115,6 +115,8 @@ dataSources:
           file: ./abis/ERC20.json
         - name: SpecialERC20
           file: ./abis/SpecialERC20.json
+        - name: ERC4626
+          file: ./abis/ERC4626.json
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
       eventHandlers:
