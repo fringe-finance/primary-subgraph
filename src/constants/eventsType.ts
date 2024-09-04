@@ -1,6 +1,5 @@
-export const DEPOSIT = 'Deposit'
-export const BORROW = 'Borrow'
-export const REPAY = 'Repay'
-export const LIQUIDATION = 'Liquidation'
-export const WITHDRAW = 'Withdraw'
-export const LEVERAGE_BORROW = 'LeverageBorrow'
+export const DEPOSIT = "Deposit";
+export const BORROW = "Borrow";
+export const REPAY = "Repay";
+export const WITHDRAW = "Withdraw";
+export const LEVERAGE_BORROW = "LeverageBorrow";

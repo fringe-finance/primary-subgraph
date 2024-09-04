@@ -33,8 +33,10 @@ dataSources:
           file: ./abis/PrimaryLendingPlatformV2.json
         - name: ERC20
           file: ./abis/ERC20.json
-        - name: PriceProviderAggregator
-          file: ./abis/PriceProviderAggregator.json
+        - name: PriceProviderAggregatorV2
+          file: ./abis/PriceProviderAggregatorV2.json
+        - name: PriceProviderAggregatorV2_5
+          file: ./abis/PriceProviderAggregatorV2_5.json
         - name: BLendingToken
           file: ./abis/BLendingToken.json
         
@@ -86,8 +88,10 @@ dataSources:
           file: ./abis/ERC20.json
         - name: BLendingToken
           file: ./abis/BLendingToken.json
-        - name: PriceProviderAggregator
-          file: ./abis/PriceProviderAggregator.json
+        - name: PriceProviderAggregatorV2
+          file: ./abis/PriceProviderAggregatorV2.json
+        - name: PriceProviderAggregatorV2_5
+          file: ./abis/PriceProviderAggregatorV2_5.json
       eventHandlers:
         - event: LeveragedBorrow(address,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleLeveragedBorrow
@@ -111,6 +115,10 @@ dataSources:
       abis:
         - name: PrimaryLendingPlatformModerator
           file: ./abis/PrimaryLendingPlatformModerator.json
+        - name: PrimaryLendingPlatformV2
+          file: ./abis/PrimaryLendingPlatformV2.json
+        - name: PriceProviderAggregatorV2
+          file: ./abis/PriceProviderAggregatorV2.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: SpecialERC20
