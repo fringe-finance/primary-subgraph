@@ -1,0 +1,10 @@
+{
+    "network": "base-sepolia",
+    "plp_address": "0x1241e6E23f9c5aF8B910D4aB8d44d01941930c70",
+    "plp_startBlock": 15735855,
+    "plp_leverage_address": "0x6F28AC256Dd6E0E2A01E86DF04927C49730510cC",
+    "plp_leverage_startBlock": 15735879,
+    "plp_moderator_address": "0x921F1F71cBf07FBD6bCf3b86cEa5C89bC39C6A0F",
+    "plp_moderator_startBlock": 15735861,
+    "blocks_per_day": 7200
+}
