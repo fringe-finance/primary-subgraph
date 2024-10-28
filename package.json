@@ -25,6 +25,9 @@
     "prepare:zksync-era-testnet": "mustache config/zksync-era-testnet.json subgraph.template.yaml > subgraph.yaml && mustache config/zksync-era-testnet.json src/constants/configs.template.ts > src/constants/configs.ts",
     "deploy-zksync-era-testnet": "graph deploy --product hosted-service locnguyenlotussoft/plp-zksync-test",
     
+    "prepare:base-sepolia": "mustache config/base-sepolia.json subgraph.template.yaml > subgraph.yaml && mustache config/base-sepolia.json src/constants/configs.template.ts > src/constants/configs.ts",
+    "deploy-base-sepolia": "graph deploy --product hosted-service locnguyenlotussoft/plp-base-test",
+    
     "prepare:mainnet": "mustache config/mainnet.json subgraph.template.yaml > subgraph.yaml && mustache config/mainnet.json src/constants/configs.template.ts > src/constants/configs.ts",
     "deploy-mainnet": "graph deploy --studio plp-mainnet",
 
@@ -38,11 +41,14 @@
     "deploy-arbitrum-one": "graph deploy --studio plp-arbitrum-one",
 
     "prepare:zksync-era": "mustache config/zksync-era.json subgraph.template.yaml > subgraph.yaml && mustache config/zksync-era.json src/constants/configs.template.ts > src/constants/configs.ts",
-    "deploy-zksync-era": "graph deploy --studio plp-zksync-era"
+    "deploy-zksync-era": "graph deploy --studio plp-zksync-era",
+    
+    "prepare:base-mainnet": "mustache config/base.json subgraph.template.yaml > subgraph.yaml && mustache config/base.json src/constants/configs.template.ts > src/constants/configs.ts",
+    "deploy-base-mainnet": "graph deploy --studio plp-base"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.59.0",
-    "@graphprotocol/graph-ts": "^0.31.0",
+    "@graphprotocol/graph-cli": "^0.82.0",
+    "@graphprotocol/graph-ts": "^0.35.1",
     "mustache": "^4.2.0"
   }
 }
