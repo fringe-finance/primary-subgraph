@@ -361,7 +361,7 @@ function handleBorrowLog<T>(event: T): void {
         entity.prjToken = prjToken.symbol();
         entity.type = event instanceof Deposit ? DEPOSIT : WITHDRAW;
         entity.date = event.block.timestamp;
-        entity.userAddress = event.params.who;
+        entity.userAddress = event instanceof Deposit ? event.params.beneficiary : event.params.who;
         entity.prjTokenAddress = event.params.tokenPrj;
     } else {
         const borrowToken = ERC20.bind(event.params.borrowToken);
