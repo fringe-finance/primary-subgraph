@@ -74,9 +74,11 @@ export function handleAddPrjToken(event: AddPrjToken): void {
         const token = SpecialERC20.bind(event.params.tokenPrj);
         entity.name = token.name().toString();
         entity.symbol = token.symbol().toString();
+        entity.decimals = token.decimals().toI32();
     } else {
         entity.name = name.value;
         entity.symbol = token.symbol();
+        entity.decimals = token.decimals();
     }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.tokenPrj, isAddNew);
@@ -86,6 +88,12 @@ export function handleAddPrjToken(event: AddPrjToken): void {
 export function handleAddLendingToken(event: AddLendingToken): void {
     const id = event.params.lendingToken.toHex();
     let isAddNew = false;
+
+    const primaryLendingPlatformModerator = PrimaryLendingPlatformModerator.bind(dataSource.address());
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
+        primaryLendingPlatformModerator.primaryLendingPlatform()
+    );
+    
     let entity = LendingToken.load(id);
     if (entity == null) {
         entity = new LendingToken(id);
@@ -98,10 +106,13 @@ export function handleAddLendingToken(event: AddLendingToken): void {
         const token = SpecialERC20.bind(event.params.lendingToken);
         entity.name = token.name().toString();
         entity.symbol = token.symbol().toString();
+        entity.decimals = token.decimals().toI32();
     } else {
         entity.name = name.value;
         entity.symbol = token.symbol();
+        entity.decimals = token.decimals();
     }
+    entity.fTokenAddress = primaryLendingPlatformV2.lendingTokenInfo(event.params.lendingToken).getBLendingToken();
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.lendingToken, isAddNew);
     entity.save();

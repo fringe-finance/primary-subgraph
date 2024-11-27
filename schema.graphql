@@ -2,6 +2,7 @@ type ProjectToken @entity {
   id: ID!
   name: String!
   symbol: String!
+  decimals: Int!
   address: Bytes!
   updatedAt: BigInt!
   isDepositPaused: Boolean
@@ -21,9 +22,11 @@ type LendingToken @entity {
   name: String!
   symbol: String!
   address: Bytes!
+  decimals: Int!
   updatedAt: BigInt!
   isPaused: Boolean
   borrowingLevelAmount: BigDecimal
+  fTokenAddress: Bytes!
   underlyingTokens: [ERC20Token!]
 }
 
