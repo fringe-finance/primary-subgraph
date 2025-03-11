@@ -1,9 +1,0 @@
-{
-    "network": "zksync-era",
-    "plp_address": "",
-    "plp_startBlock": 0,
-    "plp_leverage_address": "",
-    "plp_leverage_startBlock": 0,
-    "plp_moderator_address": "",
-    "plp_moderator_startBlock": 0
-}

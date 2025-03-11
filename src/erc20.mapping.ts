@@ -3,39 +3,61 @@ import { Address, BigDecimal, store } from "@graphprotocol/graph-ts";
 import { UniswapV2Pair } from "../generated/PrimaryLendingPlatformModerator/UniswapV2Pair";
 import { ERC20 } from "../generated/PrimaryLendingPlatformV3/ERC20";
 import { ERC20Token } from "../generated/schema";
+import { ERC4626 } from "../generated/PrimaryLendingPlatformModerator/ERC4626";
+import { SpecialERC20 } from "../generated/PrimaryLendingPlatformModerator/SpecialERC20";
 
 import { IToken } from "./interface/token.interface";
 
 export function handleAddNewUnderlyingTokens(tokenAddress: Address, isAddNew: boolean): Array<string> {
-    const underlyingTokensList = new Array<string>();
-    const lpToken = UniswapV2Pair.bind(tokenAddress);
-    const existedLPToken = lpToken.try_token0();
+    let underlyingTokensList = new Array<string>();
+    {
+        const token = UniswapV2Pair.bind(tokenAddress);
+        const existedUnderlyingToken = token.try_token0();
 
-    if (!existedLPToken.reverted) {
-        const token0Address = existedLPToken.value;
-        const token1Address = lpToken.token1();
-        increaseUnderlyingToken(token0Address, isAddNew);
-        increaseUnderlyingToken(token1Address, isAddNew);
-        underlyingTokensList.push(token0Address.toHex());
-        underlyingTokensList.push(token1Address.toHex());
+        if (!existedUnderlyingToken.reverted) {
+            const token0Address = existedUnderlyingToken.value;
+            const token1Address = token.token1();
+            increaseUnderlyingToken(token0Address, isAddNew);
+            increaseUnderlyingToken(token1Address, isAddNew);
+            underlyingTokensList.push(token0Address.toHex());
+            underlyingTokensList.push(token1Address.toHex());
+        }
+    }
+    {
+        const token = ERC4626.bind(tokenAddress);
+        const existedUnderlyingToken = token.try_asset();
+
+        if (!existedUnderlyingToken.reverted) {
+            const underlyingTokenAddress = existedUnderlyingToken.value;
+            increaseUnderlyingToken(underlyingTokenAddress, isAddNew);
+            underlyingTokensList.push(underlyingTokenAddress.toHex());
+        }
     }
     return underlyingTokensList;
 }
 
 export function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean): void {
-    const token0 = ERC20.bind(tokenAddress);
+    const token = ERC20.bind(tokenAddress);
     let entity = ERC20Token.load(tokenAddress.toHex());
-    if (!entity) {
+    if (entity == null) {
         entity = new ERC20Token(tokenAddress.toHex());
-        entity.name = token0.name();
-        entity.symbol = token0.symbol();
+        const name = token.try_name();
+        if (name.reverted) {
+            const token = SpecialERC20.bind(tokenAddress);
+            entity.name = token.name().toString();
+            entity.symbol = token.symbol().toString();
+        } else {
+            entity.name = name.value;
+            entity.symbol = token.symbol();
+        }
         entity.address = tokenAddress;
     }
     if (isAddNew) {
-        const numberOfLinks = entity.linksNumber;
-        entity.linksNumber = numberOfLinks
-            ? numberOfLinks.plus(BigDecimal.fromString("1"))
-            : BigDecimal.fromString("1");
+        let numberOfLinks = entity.linksNumber;
+        entity.linksNumber =
+            numberOfLinks !== null
+                ? numberOfLinks.plus(BigDecimal.fromString("1"))
+                : BigDecimal.fromString("1");
     }
     entity.save();
 }

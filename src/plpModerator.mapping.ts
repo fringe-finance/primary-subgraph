@@ -17,6 +17,7 @@ import {
     SetDepositLimitPerProjectAsset
 } from "../generated/PrimaryLendingPlatformModerator/PrimaryLendingPlatformModerator";
 import { ERC20 } from "../generated/PrimaryLendingPlatformV3/ERC20";
+import { SpecialERC20 } from "../generated/PrimaryLendingPlatformModerator/SpecialERC20";
 
 export function handleAddPrjToken(event: AddPrjToken): void {
     const id = event.params.tokenPrj.toHex();
@@ -28,8 +29,15 @@ export function handleAddPrjToken(event: AddPrjToken): void {
     }
     const token = ERC20.bind(event.params.tokenPrj);
     entity.address = event.params.tokenPrj;
-    entity.name = token.name();
-    entity.symbol = token.symbol();
+    const name = token.try_name();
+    if (name.reverted) {
+        const token = SpecialERC20.bind(event.params.tokenPrj);
+        entity.name = token.name().toString();
+        entity.symbol = token.symbol().toString();
+    } else {
+        entity.name = name.value;
+        entity.symbol = token.symbol();
+    }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.tokenPrj, isAddNew);
     entity.save();
@@ -55,8 +63,15 @@ export function handleAddLendingToken(event: AddLendingToken): void {
     }
     const token = ERC20.bind(event.params.lendingToken);
     entity.address = event.params.lendingToken;
-    entity.name = token.name();
-    entity.symbol = token.symbol();
+    const name = token.try_name();
+    if (name.reverted) {
+        const token = SpecialERC20.bind(event.params.lendingToken);
+        entity.name = token.name().toString();
+        entity.symbol = token.symbol().toString();
+    } else {
+        entity.name = name.value;
+        entity.symbol = token.symbol();
+    }
     entity.updatedAt = event.block.timestamp;
     entity.underlyingTokens = handleAddNewUnderlyingTokens(event.params.lendingToken, isAddNew);
     entity.save();

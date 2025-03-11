@@ -717,29 +717,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "projectToken",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "isDepositPaused",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "isWithdrawPaused",
-        "type": "bool"
-      }
-    ],
-    "name": "setPausedProjectToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "newOracle",
         "type": "address"
       }

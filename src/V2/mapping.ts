@@ -54,7 +54,7 @@ import { BORROWING_APY, LENDER_APY, TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "..
 import { DEPOSIT, BORROW, REPAY, WITHDRAW, LEVERAGE_BORROW } from "../constants/eventsType";
 import { USD_DECIMALS, SCALE_DECIMALS } from "../constants/decimals";
 import { DAY_PER_YEAR, BLOCKS_PER_DAY } from "../constants/configs";
-import { exponentToBigDecimal, pow } from "../helper/common.helper";
+import { exponentToBigDecimal, pow } from "./helpers";
 import { Address, BigDecimal, BigInt, store, dataSource, log } from "@graphprotocol/graph-ts";
 
 export function handleAddPrjToken(event: AddPrjToken): void {
@@ -184,6 +184,7 @@ export function handleLoanToValueRatioSet(event: LoanToValueRatioSet): void {
 
     const lvrNumerator = BigDecimal.fromString(event.params.lvrNumerator.toString());
     const lvrDenominator = BigDecimal.fromString(event.params.lvrDenominator.toString());
+
     if (lvrDenominator.equals(BigDecimal.fromString("0"))) {
         return;
     }
@@ -230,6 +231,12 @@ export function handleRedeem(event: Redeem): void {
 export function handleRedeemUnderlying(event: RedeemUnderlying): void {
     handleAPYHistories<RedeemUnderlying>(event);
 }
+
+export function handleRoleAdminChanged(event: RoleAdminChanged): void {}
+
+export function handleRoleGranted(event: RoleGranted): void {}
+
+export function handleRoleRevoked(event: RoleRevoked): void {}
 
 export function handleLeveragedBorrow(event: LeveragedBorrow): void {
     handleLeveragedBorrowLog(event);
@@ -333,7 +340,6 @@ function handleBorrowLog<T>(event: T): void {
     }
     entity.save();
 }
-
 /************************************ Handle LeveragedBorrowLog ************************************/
 function handleLeveragedBorrowLog<T>(event: T): void {
     const txhash = event.transaction.hash.toHex();
@@ -382,7 +388,6 @@ function handleLeveragedBorrowLog<T>(event: T): void {
         .div(exponentToBigDecimal(lendingToken.decimals()));
     entity.save();
 }
-
 /************************************ Handle MultiHistories ************************************/
 function handleAPYHistories<T>(event: T): void {
     handleLenderAPYHistory<T>(event);
@@ -406,11 +411,13 @@ function handleMultiHistories<T>(event: T): void {
 }
 
 function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
-    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
-        event instanceof LeveragedBorrow
-            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
-            : event.address
-    );
+    let primaryLendingPlatformAddress = event.address;
+    if (event instanceof LeveragedBorrow) {
+        primaryLendingPlatformAddress = PrimaryLendingPlatformLeverage.bind(
+            event.address
+        ).primaryLendingPlatform();
+    }
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(primaryLendingPlatformAddress);
     let totalOutstandingAmount = BigDecimal.fromString("0");
 
     const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
@@ -459,11 +466,13 @@ function handleMultiHistoriesPerLending<T>(event: T): BigDecimal {
 
 /************************************ Handle PositionState ************************************/
 function handlePositionState<T>(event: T): Array<BigDecimal> {
-    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
-        event instanceof LeveragedBorrow
-            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
-            : event.address
-    );
+    let primaryLendingPlatformAddress = event.address;
+    if (event instanceof LeveragedBorrow) {
+        primaryLendingPlatformAddress = PrimaryLendingPlatformLeverage.bind(
+            event.address
+        ).primaryLendingPlatform();
+    }
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(primaryLendingPlatformAddress);
 
     let usdAmount = BigDecimal.fromString("0");
     let totalPITAmount = BigDecimal.fromString("0");
@@ -565,15 +574,21 @@ function handleBorrowedState<T>(event: T): void {
     let prjTokenAddress = Address.zero();
     let lendingTokenAddress = Address.zero();
     let borrower = Address.zero();
+    let primaryLendingPlatformAddress = event.address;
+
     if (event instanceof LeveragedBorrow) {
         prjTokenAddress = event.params.projectToken;
         lendingTokenAddress = event.params.lendingToken;
         borrower = event.params.user;
+        primaryLendingPlatformAddress = PrimaryLendingPlatformLeverage.bind(
+            event.address
+        ).primaryLendingPlatform();
     } else {
         prjTokenAddress = event.params.prjAddress;
         lendingTokenAddress = event.params.borrowToken;
         borrower = event.params.who;
     }
+
     const id = prjTokenAddress.toHex() + "-" + lendingTokenAddress.toHex();
     let entity = BorrowedState.load(id);
     if (entity == null) {
@@ -582,11 +597,7 @@ function handleBorrowedState<T>(event: T): void {
 
     let borrowerList = entity.borrowerAddresses;
     const borrowerId = borrower.toHex() + "-" + id;
-    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
-        event instanceof LeveragedBorrow
-            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
-            : event.address
-    );
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(primaryLendingPlatformAddress);
     if (
         primaryLendingPlatformV2
             .totalOutstanding(borrower, prjTokenAddress, lendingTokenAddress)
@@ -791,11 +802,13 @@ function updateTotalState<T>(
 
 /************************************ Handle LenderAPYHistory ************************************/
 function handleLenderAPYHistory<T>(event: T): void {
-    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
-        event instanceof LeveragedBorrow
-            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
-            : event.address
-    );
+    let primaryLendingPlatformAddress = event.address;
+    if (event instanceof LeveragedBorrow) {
+        primaryLendingPlatformAddress = PrimaryLendingPlatformLeverage.bind(
+            event.address
+        ).primaryLendingPlatform();
+    }
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(primaryLendingPlatformAddress);
     let totalLenderAPY = BigDecimal.fromString("0");
 
     const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
@@ -840,11 +853,13 @@ function updateLenderAPYHistory<T>(event: T, lendingTokenAddress: Address, lende
 
 /************************************ Handle BorrowingAPYHistory ************************************/
 function handleBorrowingAPYHistory<T>(event: T): void {
-    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
-        event instanceof LeveragedBorrow
-            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
-            : event.address
-    );
+    let primaryLendingPlatformAddress = event.address;
+    if (event instanceof LeveragedBorrow) {
+        primaryLendingPlatformAddress = PrimaryLendingPlatformLeverage.bind(
+            event.address
+        ).primaryLendingPlatform();
+    }
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(primaryLendingPlatformAddress);
     let totalBorrowingAPY = BigDecimal.fromString("0");
 
     const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
@@ -893,11 +908,13 @@ function updateBorrowingAPYHistory<T>(
 
 /************************************ Handle LenderAggregateCapitalDepositedHistory ************************************/
 function handleLenderAggregateCapitalDepositedHistory<T>(event: T): void {
-    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(
-        event instanceof LeveragedBorrow
-            ? PrimaryLendingPlatformLeverage.bind(event.address).primaryLendingPlatform()
-            : event.address
-    );
+    let primaryLendingPlatformAddress = event.address;
+    if (event instanceof LeveragedBorrow) {
+        primaryLendingPlatformAddress = PrimaryLendingPlatformLeverage.bind(
+            event.address
+        ).primaryLendingPlatform();
+    }
+    const primaryLendingPlatformV2 = PrimaryLendingPlatformV2.bind(primaryLendingPlatformAddress);
     let totalSupply = BigDecimal.fromString("0");
 
     const lendingTokensList = getLendingTokensList(primaryLendingPlatformV2);
@@ -1051,17 +1068,17 @@ function getOutstandingPerPair<T>(
                 const borrowerEntity = Borrower.load(borrowerList[i]);
                 if (borrowerEntity != null) {
                     const borrower = Address.fromBytes(borrowerEntity.address);
+                    const positionLoan = primaryLendingPlatformV2.getPosition(
+                        borrower,
+                        projectTokenAddress,
+                        lendingTokenAddress
+                    );
                     const outstandingAmount = primaryLendingPlatformV2.totalOutstanding(
                         borrower,
                         projectTokenAddress,
                         lendingTokenAddress
                     );
-                    const depositedAmount = primaryLendingPlatformV2.getDepositedAmount(projectTokenAddress, borrower);
-                    const positionLoan = primaryLendingPlatformV2.borrowPosition(
-                        borrower,
-                        projectTokenAddress,
-                        lendingTokenAddress
-                    );
+                    const depositedAmount = positionLoan.getDepositedProjectTokenAmount();
                     const borrowedAmount = positionLoan.getLoanBody();
 
                     updateBorrower(

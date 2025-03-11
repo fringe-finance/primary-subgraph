@@ -21,7 +21,6 @@ dataSources:
         - CollateralDepositedHistory
         - PITTokenHistory
         - OutstandingHistory
-        - CollateralVSLoanRatioHistory
         - LenderAPYHistory
         - BorrowingAPYHistory
         - LenderAggregateCapitalDepositedHistory
@@ -41,17 +40,17 @@ dataSources:
       eventHandlers:
         - event: Borrow(indexed address,indexed address,uint256)
           handler: handleBorrow
-        - event: Deposit(indexed address,indexed address,uint256,indexed address)
+        - event: Deposit(indexed address,indexed address,uint256,indexed address,address[])
           handler: handleDeposit
-        - event: Redeem(indexed address,indexed address,indexed address,uint256)
+        - event: Redeem(indexed address,indexed address,indexed address,uint256,address[])
           handler: handleRedeem
-        - event: RedeemUnderlying(indexed address,indexed address,indexed address,uint256)
+        - event: RedeemUnderlying(indexed address,indexed address,indexed address,uint256,address[])
           handler: handleRedeemUnderlying
-        - event: RepayBorrow(indexed address,indexed address,uint256,bool,indexed bytes32)
+        - event: RepayBorrow(indexed address,indexed address,uint256,bool)
           handler: handleRepayBorrow
-        - event: Supply(indexed address,indexed address,uint256,indexed address,uint256)
+        - event: Supply(indexed address,indexed address,uint256,indexed address,uint256,address[])
           handler: handleSupply
-        - event: Withdraw(indexed address,indexed address,uint256,indexed address)
+        - event: Withdraw(indexed address,indexed address,uint256,indexed address,address[])
           handler: handleWithdraw
       file: ./src/plpV3.mapping.ts
 
@@ -71,7 +70,6 @@ dataSources:
         - CollateralDepositedHistory
         - PITTokenHistory
         - OutstandingHistory
-        - CollateralVSLoanRatioHistory
         - LenderAPYHistory
         - BorrowingAPYHistory
         - TotalState
@@ -89,9 +87,9 @@ dataSources:
         - name: PriceProviderAggregator
           file: ./abis/PriceProviderAggregator.json
       eventHandlers:
-        - event: LeveragedBorrow(indexed address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8)
+        - event: LeveragedBorrow(indexed address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8,address[])
           handler: handleLeveragedBorrow
-        - event: ClosePosition(indexed address,indexed address,indexed bytes32,uint256)
+        - event: ClosePosition(indexed address,indexed address,uint256,uint256)
           handler: handleClosePosition
       file: ./src/plpLeverageBorrow.mapping.ts
 
@@ -113,8 +111,16 @@ dataSources:
       abis:
         - name: PrimaryLendingPlatformModerator
           file: ./abis/PrimaryLendingPlatformModerator.json
+        - name: PrimaryLendingPlatformV3
+          file: ./abis/PrimaryLendingPlatformV3.json
+        - name: PriceProviderAggregator
+          file: ./abis/PriceProviderAggregator.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: SpecialERC20
+          file: ./abis/SpecialERC20.json
+        - name: ERC4626
+          file: ./abis/ERC4626.json
         - name: UniswapV2Pair
           file: ./abis/UniswapV2Pair.json
       eventHandlers:
