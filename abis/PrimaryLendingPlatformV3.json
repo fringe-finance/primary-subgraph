@@ -1,6 +1,11 @@
 [
   {
     "inputs": [],
+    "name": "AvailableAmountToBorrowIsZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "BLendingTokenAmountIsZero",
     "type": "error"
   },
@@ -61,11 +66,6 @@
   },
   {
     "inputs": [],
-    "name": "PitRemainingIsZero",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ProjectTokenIsNotListed",
     "type": "error"
   },
@@ -82,11 +82,6 @@
   {
     "inputs": [],
     "name": "TokenIsPaused",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TotalBorrowExceededLimit",
     "type": "error"
   },
   {
@@ -150,12 +145,6 @@
         "internalType": "address",
         "name": "beneficiary",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "updatePriceTokens",
-        "type": "address[]"
       }
     ],
     "name": "Deposit",
@@ -200,12 +189,6 @@
         "internalType": "uint256",
         "name": "redeemAmount",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "updatePriceTokens",
-        "type": "address[]"
       }
     ],
     "name": "Redeem",
@@ -237,12 +220,6 @@
         "internalType": "uint256",
         "name": "redeemAmountUnderlying",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "updatePriceTokens",
-        "type": "address[]"
       }
     ],
     "name": "RedeemUnderlying",
@@ -274,6 +251,12 @@
         "internalType": "bool",
         "name": "isPositionFullyRepaid",
         "type": "bool"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "positionId",
+        "type": "bytes32"
       }
     ],
     "name": "RepayBorrow",
@@ -399,12 +382,6 @@
         "internalType": "uint256",
         "name": "amountSupplyBTokenReceived",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "updatePriceTokens",
-        "type": "address[]"
       }
     ],
     "name": "Supply",
@@ -436,12 +413,6 @@
         "internalType": "address",
         "name": "beneficiary",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "updatePriceTokens",
-        "type": "address[]"
       }
     ],
     "name": "Withdraw",
@@ -1134,6 +1105,64 @@
       {
         "internalType": "uint256",
         "name": "estimatedOutstandingInUSD",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      }
+    ],
+    "name": "getLendingAvailableToBorrow",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "availableToBorrow",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "lendingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "priceIds",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes[]",
+        "name": "updateData",
+        "type": "bytes[]"
+      }
+    ],
+    "name": "getLendingAvailableToBorrowWithUpdatePrices",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "availableToBorrow",
         "type": "uint256"
       }
     ],
@@ -1866,6 +1895,11 @@
         "internalType": "address",
         "name": "borrower",
         "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "positionId",
+        "type": "bytes32"
       }
     ],
     "name": "repayFromRelatedContract",
@@ -2469,35 +2503,6 @@
         "type": "bytes[]"
       }
     ],
-    "name": "totalPITRemainingWithUpdatePrices",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "priceIds",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "updateData",
-        "type": "bytes[]"
-      }
-    ],
     "name": "totalPITWithUpdatePrices",
     "outputs": [
       {
@@ -2526,35 +2531,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "priceIds",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "bytes[]",
-        "name": "updateData",
-        "type": "bytes[]"
-      }
-    ],
-    "name": "totalWeightedLoanInUSDWithUpdatePrices",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "totalEvaluation",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "payable",
     "type": "function"
   },
   {

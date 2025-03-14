@@ -1,11 +1,11 @@
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, bigDecimal, BigDecimal } from "@graphprotocol/graph-ts";
 
-import { BorrowedState, Borrower } from "../../generated/schema";
+import { BorrowedState, User } from "../../generated/schema";
 import { PrimaryLendingPlatformV3 } from "../../generated/PrimaryLendingPlatformV3/PrimaryLendingPlatformV3";
 
 import { IEvent } from "../interface/event.interface";
-import { exponentToBigDecimal } from "../helper/common.helper";
-import { USD_DECIMALS } from "../constants/decimals";
+import { getUsdOraclePrice } from "./priceOracle.util";
+import { AssetType } from "../constants/assetsType";
 
 export function getTotalOutstandingPerLendingTokenInUSD<T extends IEvent>(
     event: T,
@@ -17,22 +17,29 @@ export function getTotalOutstandingPerLendingTokenInUSD<T extends IEvent>(
     const borrowedStateEntity = BorrowedState.load(id);
     if (!borrowedStateEntity) return BigDecimal.fromString("0");
 
-    const borrowers = borrowedStateEntity.borrowerAddresses;
+    const borrowers = borrowedStateEntity.userAddresses;
     if (!borrowers) return BigDecimal.fromString("0");
 
-    let totalOutstandingInUSD = BigInt.zero();
+    let totalOutstandingInUSD = bigDecimal.fromString("0");
     for (let i = 0; i < borrowers.length; i++) {
-        const borrowerEntity = Borrower.load(borrowers[i]);
+        const borrowerEntity = User.load(borrowers[i]);
         if (borrowerEntity) {
             const borrower = Address.fromBytes(borrowerEntity.address);
-            const positionLoan = primaryLendingPlatformV3.borrowPosition(borrower, lendingTokenAddress);
-            const outstandingAmount = primaryLendingPlatformV3.outstanding(borrower, lendingTokenAddress);
-            const outstandingAmountInUSD = primaryLendingPlatformV3.outstandingInUSD(
+            const estimatedOutstanding = primaryLendingPlatformV3.getEstimatedOutstanding(
                 borrower,
                 lendingTokenAddress
             );
+            const outstandingAmount = estimatedOutstanding
+                .getLoanBody()
+                .plus(estimatedOutstanding.getAccrual());
+            const outstandingAmountInUSD = getUsdOraclePrice(
+                primaryLendingPlatformV3,
+                lendingTokenAddress,
+                outstandingAmount,
+                AssetType.CAPITAL
+            );
             const depositedAmount = primaryLendingPlatformV3.depositedAmount(borrower, lendingTokenAddress);
-            const borrowedAmount = positionLoan.getLoanBody();
+            const borrowedAmount = estimatedOutstanding.getLoanBody();
 
             updateBorrower(
                 event,
@@ -46,10 +53,10 @@ export function getTotalOutstandingPerLendingTokenInUSD<T extends IEvent>(
             totalOutstandingInUSD = totalOutstandingInUSD.plus(outstandingAmountInUSD);
         }
     }
-    return totalOutstandingInUSD.toBigDecimal().div(exponentToBigDecimal(USD_DECIMALS));
+    return totalOutstandingInUSD;
 }
 
-function updateBorrower<T extends IEvent>(
+export function updateBorrower<T extends IEvent>(
     event: T,
     borrower: Address,
     lendingTokenAddress: Address,
@@ -58,7 +65,7 @@ function updateBorrower<T extends IEvent>(
     outstandingAmount: BigDecimal
 ): void {
     const id = borrower.toHex() + "-" + lendingTokenAddress.toHex();
-    const entity = Borrower.load(id);
+    const entity = User.load(id);
     if (!entity) return;
 
     entity.updatedAt = event.block.timestamp;

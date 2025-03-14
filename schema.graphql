@@ -2,6 +2,7 @@ type ProjectToken @entity {
   id: ID!
   name: String!
   symbol: String!
+  decimals: Int!
   address: Bytes!
   updatedAt: BigInt!
   isDepositPaused: Boolean
@@ -18,10 +19,12 @@ type LendingToken @entity {
   id: ID!
   name: String!
   symbol: String!
+  decimals: Int!
   address: Bytes!
   updatedAt: BigInt!
   isPaused: Boolean
   borrowingLevelAmount: BigDecimal
+  fTokenAddress: Bytes!
   underlyingTokens: [ERC20Token!]
 }
 
@@ -29,6 +32,7 @@ type ERC20Token @entity {
   id: ID!
   name: String!
   symbol: String!
+  decimals: Int!
   address: Bytes!
   linksNumber: BigDecimal
 }
@@ -40,23 +44,6 @@ type BorrowLog @entity(immutable: true) {
   type: String!
   date: BigInt!
   userAddress: Bytes!
-}
-
-type LeveragedBorrowLog @entity(immutable: true) {
-  id: ID!
-  prjTokenPrice: BigDecimal!
-  lendingTokenPrice: BigDecimal!
-  marginAmount: BigDecimal!
-  marginCount: BigDecimal!
-  exposureAmount: BigDecimal!
-  exposureLendingCount: BigDecimal!
-  prjToken: String!
-  lendingToken: String!
-  type: String!
-  date: BigInt!
-  userAddress: Bytes!
-  prjTokenAddress: Bytes!
-  lendingTokenAddress: Bytes!
 }
 
 type CollateralDepositedHistory @entity(immutable: true) {
@@ -108,19 +95,72 @@ type TotalState @entity {
   updatedAt: BigInt!
 }
 
+type UserState @entity {
+  id: ID!
+  userAddress: Bytes
+  updatedAt: BigInt!
+  tokenAddresses: [User!]
+}
+
 type BorrowedState @entity {
   id: ID!
   lendingTokenAddress: Bytes
   updatedAt: BigInt!
-  borrowerAddresses: [Borrower!]
+  userAddresses: [User!]
 }
 
-type Borrower @entity {
+type User @entity {
   id: ID!
   address: Bytes!
-  lendingTokenAddress: Bytes!
+  tokenAddress: Bytes!
   updatedAt: BigInt!
   borrowedAmount: BigDecimal
   outstandingAmount: BigDecimal
   depositedAmount: BigDecimal
+}
+
+type LeveragePositionData @entity {
+  id: ID!
+  borrowerAddress: PositionByUser!
+  prjToken: String!
+  prjTokenPrice: BigDecimal!
+  longAsset: Bytes!
+  lendingToken: String!
+  lendingTokenPrice: BigDecimal!
+  shortAsset: Bytes!
+  longCount: BigDecimal!
+  shortCount: BigDecimal!
+  exposureAmount: BigDecimal!
+  leverageType: Int!
+  projectTokenRefId: PositionByProjectToken!
+  lendingTokenRefId: PositionByLendingToken!
+  date: BigInt!
+}
+
+type LongAssetCountState @entity {
+  id: ID!
+  currentTotalLongAssetCount: BigDecimal!
+  maxTotalLongAssetCount: BigDecimal!
+}
+
+type ShortAssetCountState @entity {
+  id: ID!
+  closeShortAmount: BigDecimal!
+  currentTotalShortAssetCount: BigDecimal!
+  maxTotalShortAssetCount: BigDecimal!
+}
+
+type PositionByProjectToken @entity(immutable: true) {
+  id: ID!
+  positions: [LeveragePositionData!]! @derivedFrom(field: "projectTokenRefId")
+} 
+
+type PositionByLendingToken @entity(immutable: true) {
+  id: ID!
+  positions: [LeveragePositionData!]! @derivedFrom(field: "lendingTokenRefId")
+} 
+
+type PositionByUser @entity(immutable: true) { 
+  id: ID!
+  positions: [LeveragePositionData!]! @derivedFrom(field: "borrowerAddress")
 }

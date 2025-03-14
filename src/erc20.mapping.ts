@@ -46,9 +46,11 @@ export function increaseUnderlyingToken(tokenAddress: Address, isAddNew: boolean
             const token = SpecialERC20.bind(tokenAddress);
             entity.name = token.name().toString();
             entity.symbol = token.symbol().toString();
+            entity.decimals = token.decimals().toI32();
         } else {
             entity.name = name.value;
             entity.symbol = token.symbol();
+            entity.decimals = token.decimals();
         }
         entity.address = tokenAddress;
     }

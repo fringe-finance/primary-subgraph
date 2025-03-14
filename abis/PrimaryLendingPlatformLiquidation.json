@@ -104,12 +104,6 @@
         "internalType": "uint256",
         "name": "amountPrjLiquidated",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address[]",
-        "name": "updatePriceTokens",
-        "type": "address[]"
       }
     ],
     "name": "Liquidate",

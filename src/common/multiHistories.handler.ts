@@ -5,7 +5,7 @@ import {
     PrimaryLendingPlatformLeverage
 } from "../../generated/PrimaryLendingPlatformLeverage/PrimaryLendingPlatformLeverage";
 import { PrimaryLendingPlatformV3 } from "../../generated/PrimaryLendingPlatformV3/PrimaryLendingPlatformV3";
-import { CollateralDepositedHistory, PITTokenHistory, OutstandingHistory } from "../../generated/schema";
+import { CollateralDepositedHistory, PITTokenHistory, OutstandingHistory, ProjectToken } from "../../generated/schema";
 
 import { TOTAL_AMOUNT_COLLATERAL_DEPOSITED } from "../constants/chartsType";
 
@@ -16,6 +16,8 @@ import { getUsdOraclePrice } from "../utils/priceOracle.util";
 import { updateTotalState } from "./updateTotalState.handler";
 import { IEvent } from "../interface/event.interface";
 import { AssetType } from "../constants/assetsType";
+import { exponentToBigDecimal } from "../helper/common.helper";
+import { ERC20 } from "../../generated/PrimaryLendingPlatformV3/ERC20";
 
 export function handleMultiHistories<T extends IEvent>(event: T): void {
     const totalStateUpdated = getUpdatedState<T>(event);
@@ -75,20 +77,46 @@ function getUpdatedState<T extends IEvent>(event: T): Array<BigDecimal> {
             AssetType.COLLATERAL
         );
         usdAmount = usdAmount.plus(usdOraclePrice);
-
+        const prjToken = ERC20.bind(projectTokens[i]);
+        const depositedAmount = totalDepositedPerToken
+            .toBigDecimal()
+            .div(exponentToBigDecimal(prjToken.decimals()));
         const lvr = primaryLendingPlatformV3.projectTokenInfo(projectTokens[i]).getLoanToValueRatio();
         const pitAmount = usdOraclePrice
             .times(BigDecimal.fromString(lvr.numerator.toString()))
             .div(BigDecimal.fromString(lvr.denominator.toString()));
         totalPITAmount = totalPITAmount.plus(pitAmount);
+
+        updateProjectTokenState<T>(event, projectTokens[i], depositedAmount, pitAmount);
     }
+
     return [usdAmount, totalPITAmount];
 }
 
-function updateCollateralDepositedHistory<T extends IEvent>(
+function updateProjectTokenState<T extends IEvent>(
     event: T,
-    collateralAmount: BigDecimal
+    projectTokenAddress: Address,
+    depositedAmount: BigDecimal,
+    pitAmount: BigDecimal,
 ): void {
+    const id = projectTokenAddress.toHex();
+    let entity = ProjectToken.load(id);
+    if (entity == null) {
+        return;
+    }
+    entity.depositedAmount = depositedAmount;
+    entity.pitAmount = pitAmount;
+    entity.updatedAt = event.block.timestamp;
+    const depositLimit = entity.depositingLevelAmount;
+    if (depositLimit !== null) {
+        entity.currentDepositingLevel = depositLimit.notEqual(BigDecimal.fromString("0"))
+            ? depositedAmount.div(depositLimit).times(BigDecimal.fromString("100"))
+            : BigDecimal.fromString("0");
+    }
+    entity.save();
+}
+
+function updateCollateralDepositedHistory<T extends IEvent>(event: T, collateralAmount: BigDecimal): void {
     const txhash = event.transaction.hash.toHex();
     const logIndex = event.logIndex.toString();
     const id = txhash + "-" + logIndex;

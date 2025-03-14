@@ -25,13 +25,21 @@ dataSources:
         - BorrowingAPYHistory
         - LenderAggregateCapitalDepositedHistory
         - TotalState
+        - UserState
         - BorrowedState
-        - Borrower
+        - User
+        - LongAssetCountState
+        - ShortAssetCountState
+        - PositionByProjectToken
+        - PositionByLendingToken
+        - PositionByUser
       abis:
         - name: PrimaryLendingPlatformV3
           file: ./abis/PrimaryLendingPlatformV3.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: PrimaryLendingPlatformLeverage
+          file: ./abis/PrimaryLendingPlatformLeverage.json
         - name: PriceProviderAggregator
           file: ./abis/PriceProviderAggregator.json
         - name: BLendingToken
@@ -40,17 +48,17 @@ dataSources:
       eventHandlers:
         - event: Borrow(indexed address,indexed address,uint256)
           handler: handleBorrow
-        - event: Deposit(indexed address,indexed address,uint256,indexed address,address[])
+        - event: Deposit(indexed address,indexed address,uint256,indexed address)
           handler: handleDeposit
-        - event: Redeem(indexed address,indexed address,indexed address,uint256,address[])
+        - event: Redeem(indexed address,indexed address,indexed address,uint256)
           handler: handleRedeem
-        - event: RedeemUnderlying(indexed address,indexed address,indexed address,uint256,address[])
+        - event: RedeemUnderlying(indexed address,indexed address,indexed address,uint256)
           handler: handleRedeemUnderlying
-        - event: RepayBorrow(indexed address,indexed address,uint256,bool)
+        - event: RepayBorrow(indexed address,indexed address,uint256,bool,indexed bytes32)
           handler: handleRepayBorrow
-        - event: Supply(indexed address,indexed address,uint256,indexed address,uint256,address[])
+        - event: Supply(indexed address,indexed address,uint256,indexed address,uint256)
           handler: handleSupply
-        - event: Withdraw(indexed address,indexed address,uint256,indexed address,address[])
+        - event: Withdraw(indexed address,indexed address,uint256,indexed address)
           handler: handleWithdraw
       file: ./src/plpV3.mapping.ts
 
@@ -66,14 +74,21 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - LeveragedBorrowLog
+        - LeveragePositionData
+        - LongAssetCountState
+        - ShortAssetCountState
+        - PositionByProjectToken
+        - PositionByLendingToken
+        - PositionByUser
         - CollateralDepositedHistory
         - PITTokenHistory
         - OutstandingHistory
         - LenderAPYHistory
         - BorrowingAPYHistory
         - TotalState
+        - UserState
         - BorrowedState
+        - User
         - LenderAggregateCapitalDepositedHistory
       abis:
         - name: PrimaryLendingPlatformLeverage
@@ -87,9 +102,9 @@ dataSources:
         - name: PriceProviderAggregator
           file: ./abis/PriceProviderAggregator.json
       eventHandlers:
-        - event: LeveragedBorrow(indexed address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8,address[])
+        - event: LeveragedBorrow(indexed address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint8)
           handler: handleLeveragedBorrow
-        - event: ClosePosition(indexed address,indexed address,uint256,uint256)
+        - event: ClosePosition(indexed address,indexed address,indexed bytes32,uint256)
           handler: handleClosePosition
       file: ./src/plpLeverageBorrow.mapping.ts
 

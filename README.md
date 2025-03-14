@@ -18,11 +18,9 @@ Deploy the subgraph with [Subgraph Studio](https://thegraph.com/studio/)
   <img alt="Subgraph Create Subgraph" src="./img/create-subgraph.png">
 </p>
 
-**Step 3:** Set name of the subgraph and choose the network to be indexed by set `SUBGRAPH NAME` and choose `INDEXED BLOCKCHAIN`. Then click `Create Subgraph` to create new Subgraph.
+**Step 3:** Set name of the subgraph by set `SUBGRAPH NAME`. Then click `Create Subgraph` to create new Subgraph.
 
 - **SUBGRAPH NAME** - The name of the subgraph is created under, this will also define the `SUBGRAPH SLUG` name used for deployment and GraphQL endpoint. This field cannot be changed later.
-
-- **INDEXED BLOCKCHAIN** - The blockchain network that your subgraph will be indexed.
 
 <p align="center">
   <img alt="Subgraph Create Subgraph" src="./img/set-name-network.png">
@@ -77,7 +75,7 @@ The **network_name** takes the list below:
 
 - `arbitrum-goerli`
 
-- `zksync2-testnet`
+- `zksync-era-testnet`
 
 Then, set the following in your config file:
 
@@ -89,7 +87,8 @@ Then, set the following in your config file:
     "plp_leverage_address": "<plp_leverage_contract_address>",
     "plp_leverage_startBlock": "<init_block_of_plp_leverage_contract>",
     "plp_moderator_address": "<plp_moderator_contract_address>",
-    "plp_moderator_startBlock": "<init_block_of_plp_moderator_contract>"
+    "plp_moderator_startBlock": "<init_block_of_plp_moderator_contract>",
+    "blocks_per_day" : "<blocks_per_day>"
 }
 ```
 
@@ -103,7 +102,8 @@ Then, set the following in your config file:
     "plp_leverage_address": "0xa26F380Dc9aadceAAeAcEd794c8be2E2D5C1f1f1",
     "plp_leverage_startBlock": 40092028,
     "plp_moderator_address": "0xb44021Ba8eb624b44bdF70D328C2441a8698c6A5",
-    "plp_moderator_startBlock": 39264701
+    "plp_moderator_startBlock": 39264701,
+    "blocks_per_day" : 7200
 }
 ```
 

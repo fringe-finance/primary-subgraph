@@ -15,16 +15,17 @@ export function getLenderAPYPerLendingToken(
         .lendingTokenInfo(lendingTokenAddress)
         .getBLendingToken();
     const bLendingToken = BLendingToken.bind(bLendingTokenAddress);
-    const supplyRatePerBlock = bLendingToken
-        .supplyRatePerBlock()
-        .toBigDecimal()
-        .div(exponentToBigDecimal(SCALE_DECIMALS));
-    const supplyRatePerDay = supplyRatePerBlock.times(BigDecimal.fromString(BLOCKS_PER_DAY.toString()));
-    const lenderAPY = pow(supplyRatePerDay.plus(BigDecimal.fromString("1")), DAY_PER_YEAR)
-        .minus(BigDecimal.fromString("1"))
-        .times(BigDecimal.fromString("100"));
-
-    return lenderAPY;
+    const supplyRatePerBlock = bLendingToken.try_supplyRatePerBlock()
+    if (supplyRatePerBlock.reverted) {
+        return BigDecimal.fromString("0");
+    } else {
+        const supplyRatePerBlockValue = supplyRatePerBlock.value.toBigDecimal().div(exponentToBigDecimal(SCALE_DECIMALS));
+        const supplyRatePerDay = supplyRatePerBlockValue.times(BigDecimal.fromString(BLOCKS_PER_DAY.toString()));
+        const lenderAPY = pow(supplyRatePerDay.plus(BigDecimal.fromString("1")), DAY_PER_YEAR)
+            .minus(BigDecimal.fromString("1"))
+            .times(BigDecimal.fromString("100"));
+        return lenderAPY;
+    }
 }
 
 export function getBorrowingAPYPerLendingToken(
@@ -35,14 +36,15 @@ export function getBorrowingAPYPerLendingToken(
         .lendingTokenInfo(lendingTokenAddress)
         .getBLendingToken();
     const bLendingToken = BLendingToken.bind(bLendingTokenAddress);
-    const borrowRatePerBlock = bLendingToken
-        .borrowRatePerBlock()
-        .toBigDecimal()
-        .div(exponentToBigDecimal(SCALE_DECIMALS));
-    const borrowRatePerDay = borrowRatePerBlock.times(BigDecimal.fromString(BLOCKS_PER_DAY.toString()));
-    const borrowingAPY = pow(borrowRatePerDay.plus(BigDecimal.fromString("1")), DAY_PER_YEAR)
-        .minus(BigDecimal.fromString("1"))
-        .times(BigDecimal.fromString("100"));
-
-    return borrowingAPY;
+    const borrowRatePerBlock = bLendingToken.try_borrowRatePerBlock()
+    if (borrowRatePerBlock.reverted) {
+        return BigDecimal.fromString("0");
+    } else {
+        const borrowRatePerBlockValue = borrowRatePerBlock.value.toBigDecimal().div(exponentToBigDecimal(SCALE_DECIMALS));
+        const borrowRatePerDay = borrowRatePerBlockValue.times(BigDecimal.fromString(BLOCKS_PER_DAY.toString()));
+        const borrowingAPY = pow(borrowRatePerDay.plus(BigDecimal.fromString("1")), DAY_PER_YEAR)
+            .minus(BigDecimal.fromString("1"))
+            .times(BigDecimal.fromString("100"));
+        return borrowingAPY;
+    }
 }
